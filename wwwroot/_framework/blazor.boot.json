@@ -8,7 +8,7 @@
   "resources": {
     "assembly": {
       "Blazored.LocalStorage.dll": "sha256-6RRoYeDP3d0xabXmcCMF66wXeJlXVPem28Trs8sQiis=",
-      "Help2Help.Client.dll": "sha256-ltZwq57n8dnY5u9c9\/eW8HgQmH96yuIWHJzn1S4LAqM=",
+      "Help2Help.Client.dll": "sha256-hImA9uWog2bWF28AYuP9s5AzmDBalnT2mbIJlBv2j1U=",
       "Help2Help.Shared.dll": "sha256-Y3sTPpjnqSpCahb1T\/pDVWVweFq\/VH+acWl536liVc0=",
       "Microsoft.AspNetCore.Authorization.dll": "sha256-EAL+wrqLBbXxUdYsqVPDRJo49Cnrm7L3EqWNY1AjuWQ=",
       "Microsoft.AspNetCore.Components.Authorization.dll": "sha256-1PlkBrEe8rmKOZzRgGajcqJHn4yYEayRbHJonUJfMog=",
