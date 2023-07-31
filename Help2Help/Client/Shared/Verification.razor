@@ -1,0 +1,252 @@
+﻿@inject IDocumentService DocumentService
+@inject IUserService UserService
+@inject IJSRuntime JSRuntime
+
+<MudPaper Elevation="0">
+    <MudStack Class="mx-auto pa-4" Spacing="4" Justify="Justify.Center" AlignItems="AlignItems.Center">
+        <MudPaper Elevation="0" Class="mx-auto justify-center object-center">
+            <MudText Typo="Typo.h4" Align="Align.Center">Solicitar verificación</MudText>
+        </MudPaper>
+        <MudPaper Elevation="0">
+            <MudText Typo="Typo.subtitle2" Align="Align.Center">
+                En Help2Help, nos preocupamos por la seguridad de nuestros usuarios.
+                Para garantizar la autenticidad de nuestros usuarios y promover la transparencia, hemos implementado un proceso de
+                verificación para asociaciones civiles. Para obtener el estatus de usuario verificado en Help2Help,
+                todas las entidades deben cumplir con algunos requisitos solicitados a continuación:
+            </MudText>
+            <MudText Class="mt-4 mb-4" Typo="Typo.subtitle2" Align="Align.Center">
+                1. Descargar, completar y firmar una declaración jurada.
+                Puedes descargarla haciendo click en el siguiente botón
+            </MudText>
+            <MudButton StartIcon="@Icons.Material.Filled.Download" Color="Color.Info"
+                       Size="Size.Small" OnClick="@(() => DownloadFile())">
+                Descargar declaración jurada
+            </MudButton>
+            <MudText Class="mt-4 mb-4" Typo="Typo.subtitle2" Align="Align.Center">
+                2. Sube la declaración jurada firmada
+            </MudText>
+            <MudPaper Outlined="true" Class="mb-6 pa-4" Elevation="0">
+                <MudStack Row="true">
+                    @*BOTON PARA SUBIR DECLARACIÓN JURADA*@
+                    @{
+                        bool disableDeclaration = (@UserService.UserDTO.IsONGVerified || (@fileNameSwornDeclaration != string.Empty)) ? true : false;
+                    }
+                    <MudFileUpload T="IBrowserFile" Accept=".pdf" OnFilesChanged="UploadSwornDeclaration" MaximumFileCount="1">
+                        <ButtonTemplate>
+                            <MudFab HtmlTag="label"
+                                    Color="Color.Info"
+                                    Disabled="disableDeclaration"
+                                    Label="Subir archivo"
+                                    Icon="@Icons.Material.Filled.CloudUpload"
+                                    for="@context">
+                            </MudFab>
+                        </ButtonTemplate>
+                    </MudFileUpload>
+                    @if (fileNameSwornDeclaration != string.Empty)
+                    {
+                        <MudText Typo="Typo.subtitle2" Class="mt-5" Align="Align.Start">
+                            @fileNameSwornDeclaration
+                        </MudText>
+                        <MudIconButton Class="mt-2" DisableRipple="true"
+                                   Icon="@Icons.Material.Filled.Close"
+                                   @onclick="@(() => DeleteSwornDeclaration())"
+                                   Color="Color.Error"></MudIconButton>
+                    }
+                </MudStack>
+            </MudPaper>
+            <MudText Class="mt-4 mb-4" Typo="Typo.subtitle2" Align="Align.Center">
+                3. Adjuntar Certificado de Exención en el Impuesto a las Ganancias (Resolución General Nº 2681 (AFIP) del
+                Impuesto a las Ganancias). Descarga la <MudLink Color="Color.Info" OnClick="DownloadGuide">GUÍA TUTORIAL</MudLink>
+                para obtener el paso a paso. <br>
+                4. Sube el certificado a continuación:
+            </MudText>
+            <MudPaper Outlined="true" Class="mb-6 pa-4" Elevation="0">
+                <MudStack Row="true">
+                    @*BOTON PARA SUBIR CERTIFICADO*@
+                    @{
+                        bool disableCertificate = (@UserService.UserDTO.IsONGVerified || (@fileName != string.Empty)) ? true : false;
+                    }
+                    <MudFileUpload T="IBrowserFile" Accept=".pdf" OnFilesChanged="UploadCertificate" MaximumFileCount="1">
+                        <ButtonTemplate>
+                            <MudFab HtmlTag="label"
+                                    Color="Color.Info"
+                                    Disabled="disableCertificate"
+                                    Label="Subir archivo"
+                                    Icon="@Icons.Material.Filled.CloudUpload"
+                                    for="@context">
+                            </MudFab>
+                        </ButtonTemplate>
+                    </MudFileUpload>
+                    @if (fileName != string.Empty)
+                    {
+                        <MudText Typo="Typo.subtitle2" Class="mt-5" Align="Align.Start">
+                            @fileName
+                        </MudText>
+                        <MudIconButton Class="mt-2" DisableRipple="true"
+                                   Icon="@Icons.Material.Filled.Close"
+                                   @onclick="@(() => DeleteDocument())"
+                                   Color="Color.Error"></MudIconButton>
+                    }
+
+                </MudStack>
+            </MudPaper>
+            <MudButton Variant="Variant.Filled"
+                       Class="mb-4"
+                       Disabled="@disableSubmit"
+                       StartIcon="@Icons.Material.Filled.Verified"
+                       OnClick="SendVerification"
+                       Color="Color.Success">Solicitar verificación</MudButton>
+
+            <MudText Class="mt-4 mb-4" Typo="Typo.subtitle2" Align="Align.Center">
+                Una vez que se haya completado el proceso de registro, el equipo de Help2Help, se encargará de validar
+                dichos documentos para finalizar el proceso de validación y activar por completo la cuenta. <br />
+
+                En caso de que su usuario pertenezca a una asociación civil, al lado de su nombre de usuario, podrá ver un icono de
+                verificado.<br />
+                Además, sí y solo sí, el usuario con Certificado de Exención en el Impuesto a las Ganancias
+                (Resolución General Nº 2681 (AFIP) del Impuesto a las Ganancias), en donde se autorice la deducción de donaciones
+                (Art. 81 c. Validará para el donante la deducción en el impuesto a las ganancias de las donaciones efectuadas a las
+                entidades beneficiadas desde la fecha que conste en el Certificado de Exención), en su perfil, debajo de la
+                descripción del usuario, se visualizará en negrita <strong>
+                    "Esta asociación autoriza deducción Donaciones según el Art. 81 c
+                    de la Ley de impuesto a las Ganancias, articulo 20)"
+                </strong>.<br />
+                En Help2Help, nos esforzamos por crear un entorno seguro y confiable para todos nuestros usuarios.
+                La verificación de las asociaciones civiles nos ayuda a garantizar la transparencia y la autenticidad en
+                nuestra comunidad.<br />
+                Recuerda que el proceso de verificación está diseñado específicamente para Asociaciones Civiles en Argentina.
+                Si tienes alguna pregunta o necesitas asistencia durante el proceso de verificación, no dudes en ponerte en
+                contacto con nuestro equipo de soporte.<br />
+                ¡Gracias por unirte a Help2Help y contribuir a hacer del mundo un lugar mejor a través de tu Asociación Civil!
+
+            </MudText>
+
+            @*FALTA AGREGAR UNA TERCER VARIABLE QUE INDIQUE DE MOSTAR EL RESULTADO DE LA VERIFICACION PARA COMPLETAR LA LOGICA DE LOS MENSAJES*@
+            @if (uploadDocumentResponse.IsVerificationInProgress)
+            {
+                <MudText Typo="Typo.body1">
+                    <MudAlert Severity="Severity.Success" ContentAlignment="HorizontalAlignment.Center">
+                        @uploadDocumentResponse.Message
+                    </MudAlert>
+                </MudText>
+            }
+            @if (UserService.UserDTO.IsONGVerified)
+            {
+                <MudText Typo="Typo.body1">
+                    <MudAlert Severity="Severity.Success" ContentAlignment="HorizontalAlignment.Center">
+                        ¡Felicidades! Has sido verificado
+                    </MudAlert>
+                </MudText>
+            }
+            else if (!UserService.UserDTO.IsONGVerified)
+            {
+                <MudText Typo="Typo.body1">
+                    <MudAlert Severity="Severity.Error" ContentAlignment="HorizontalAlignment.Center">
+                        No eres usuario verificado aún
+                    </MudAlert>
+                </MudText>
+            }
+        </MudPaper>
+    </MudStack>
+</MudPaper>
+@code {
+    public DocumentResponseDTO uploadDocumentResponse = new DocumentResponseDTO();
+    public DocumentRequestDTO uploadDocumentRequest = new DocumentRequestDTO();
+    public DocumentRequestDTO uploadDocumentSwornDeclaration = new DocumentRequestDTO();
+    public string fileName = string.Empty;
+    public string fileNameSwornDeclaration = string.Empty;
+    public bool disableSubmit = true;
+    public bool certificateUploaded = false;
+    public bool swornDeclarationUploaded = false;
+    private async void UploadCertificate(InputFileChangeEventArgs e)
+    {
+        foreach (var file in e.GetMultipleFiles(int.MaxValue))
+        {
+            fileName = file.Name;
+            using var stream = file.OpenReadStream();
+            using var memoryStream = new MemoryStream();
+
+            // Copia el contenido del archivo a un MemoryStream
+            await stream.CopyToAsync(memoryStream);
+
+            // Convierte los bytes en una cadena Base64
+            var fileBytes = memoryStream.ToArray();
+            var base64String = Convert.ToBase64String(fileBytes);
+            var guid = Guid.NewGuid();
+
+            uploadDocumentRequest.FileName = file.Name;
+            uploadDocumentRequest.FileContent = base64String;
+            uploadDocumentRequest.Guid = guid.ToString();
+            
+            certificateUploaded = true;
+
+            if(certificateUploaded && swornDeclarationUploaded) disableSubmit = false;
+
+            await InvokeAsync(() => { StateHasChanged(); });
+        }
+    }
+
+    private async void UploadSwornDeclaration(InputFileChangeEventArgs e)
+    {
+        foreach (var file in e.GetMultipleFiles(int.MaxValue))
+        {
+            fileNameSwornDeclaration = file.Name;
+            using var stream = file.OpenReadStream();
+            using var memoryStream = new MemoryStream();
+
+            // Copia el contenido del archivo a un MemoryStream
+            await stream.CopyToAsync(memoryStream);
+
+            // Convierte los bytes en una cadena Base64
+            var fileBytes = memoryStream.ToArray();
+            var base64String = Convert.ToBase64String(fileBytes);
+            var guid = Guid.NewGuid();
+
+            uploadDocumentSwornDeclaration.FileName = file.Name;
+            uploadDocumentSwornDeclaration.FileContent = base64String;
+            uploadDocumentSwornDeclaration.Guid = guid.ToString();
+
+            swornDeclarationUploaded = true;
+            if(certificateUploaded && swornDeclarationUploaded) disableSubmit = false;
+
+            await InvokeAsync(() => { StateHasChanged(); });
+        }
+    }
+
+    private async void DownloadFile()
+    {
+        var response = await DocumentService.DownloadSwornDeclaration();
+        // Convierte el archivo Base64 en un array de bytes
+        byte[] archivoBytes = Convert.FromBase64String(response.FileContent);
+
+        await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", "Declaracion_Jurada", archivoBytes, "application/pdf");
+
+    }
+
+    private async void DownloadGuide()
+    {
+        var response = await DocumentService.DownloadTutorialGuide();
+        // Convierte el archivo Base64 en un array de bytes
+        byte[] archivoBytes = Convert.FromBase64String(response.FileContent);
+
+        await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", "Guia_Tutorial", archivoBytes, "application/pdf");
+    }
+
+    private void DeleteDocument()
+    {
+        uploadDocumentRequest = new DocumentRequestDTO();
+        fileName = string.Empty;
+    }
+
+    private void DeleteSwornDeclaration()
+    {
+        uploadDocumentSwornDeclaration = new DocumentRequestDTO();
+        fileName = string.Empty;
+    }
+
+    private async void SendVerification()
+    {
+        uploadDocumentResponse = await DocumentService.SaveCertificate(uploadDocumentRequest, uploadDocumentSwornDeclaration);
+        await InvokeAsync(() => { StateHasChanged(); });
+    }
+}

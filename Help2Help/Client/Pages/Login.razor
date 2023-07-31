@@ -1,0 +1,244 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.WebUtilities
+@using MudBlazor.Services
+@inject IAuthService AuthService
+@inject ILocalStorageService LocalStorage
+@inject HttpClient httpClient
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+
+<div class="section">
+    <div class="carousel">
+        <ul class="circles">
+            <li class="circle-green"></li>
+            <li class="circle-yellow"></li>
+            <li class="circle-green"></li>
+            <li class="circle-orange"></li>
+            <li class="circle-yellow"></li>
+            <li class="circle-green"></li>
+            <li class="circle-orange"></li>
+            <li class="circle-yellow"></li>
+            <li class="circle-green"></li>
+            <li class="circle-green"></li>
+            <li class="circle-yellow"></li>
+            <li class="circle-green"></li>
+            <li class="circle-orange"></li>
+            <li class="circle-yellow"></li>
+            <li class="circle-green"></li>
+            <li class="circle-orange"></li>
+        </ul>
+    </div>
+    <div class="container-login">
+        <div class="row full-height justify-content-center">
+            <div class="col-12 text-center align-self-center py-0">
+                <div class="section pb-5 pt-5 pt-sm-2 text-center">
+                    <div class="login-logo">
+                        <MudImage Src="/images/LogoSinFondo.png"
+                                  Alt="Help2Help"
+                                  Style="height:100%"/>
+                    </div>
+                    <h6 class="words"><strong>INICIAR SESIÓN &nbsp;&nbsp;&nbsp; REGISTRARSE</strong></h6>
+                    <input class="checkbox" type="checkbox" id="reg-log" name="reg-log" />
+                    <label for="reg-log"></label>
+                    <div class="card-3d-wrap mx-auto">
+                        <div class="card-3d-wrapper">
+                            <div class="card-front">
+                                <div class="center-wrap">
+                                    <div class="section text-center">
+                                        <EditForm Model="userLogin" OnValidSubmit="HandleLogin">
+                                            <DataAnnotationsValidator />
+                                            <div class="center-wrap">
+                                                <div class="section text-center">
+                                                    <div class="form-group">
+                                                        <input id="logemail" type="email" name="logemail" class="form-style" @bind="userLogin.Email" placeholder="Usuario">
+                                                        <i class="input-icon uil uil-user-circle"></i>
+                                                        <ValidationMessage For="@(() => userLogin.Email)" />
+                                                    </div>
+                                                    <div class="form-group mt-2 mb-2">
+                                                        <input id="logpass" name="logpass" @bind="userLogin.Password" class="form-style" placeholder="Contraseña" type="password">
+                                                        <i class="input-icon uil uil-lock-alt"></i>
+                                                        <ValidationMessage For="@(() => userLogin.Password)" />
+                                                    </div>
+                                                    <div hidden="@HideMessage">
+                                                        @if (!String.IsNullOrEmpty(errorMessage.ToString()))
+                                                        {
+                                                            @if (!(errorMessage == null))
+                                                            {
+                                                                <MudAlert Severity="Severity.Error" Variant="Variant.Filled">@errorMessage</MudAlert>
+                                                            }
+                                                        }
+                                                    </div>
+                                                    <button type="submit" class="btn mt-4" style="width:80%;">INGRESAR</button>
+                                                    <p class="mb-0 mt-4 text-center"><a href="/recover" class="link"><strong>¿Olvidaste tu contraseña?</strong></a></p>
+
+                                                    <MudButton StartIcon="@Icons.Custom.Brands.Google"
+                                                               Class="ml-auto mr-auto mb-4 mt-3"
+                                                               Style="width:100%;"
+                                                               Variant="Variant.Filled"
+                                                               Color="Color.Info"
+                                                               Href="api/auth/google-login"
+                                                               ButtonType="ButtonType.Submit">
+                                                        Ingresar con Google
+                                                    </MudButton>
+                                                    <MudButton
+                                                               Style="width:100%;"
+                                                               Class="ml-auto mr-auto"
+                                                               StartIcon="@Icons.Custom.Brands.Facebook"
+                                                               Variant="Variant.Filled"
+                                                               Color="Color.Primary"
+                                                               ButtonType="ButtonType.Submit"
+                                                               OnClick="GoogleLogin">
+                                                        Ingresar con Facebook
+                                                    </MudButton>
+                                                </div>
+                                            </div>
+                                        </EditForm>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-back">
+                                <EditForm Model="userRegister" OnValidSubmit="HandleRegistration">
+                                    <DataAnnotationsValidator />
+                                    <div class="center-wrap">
+                                        <div class="section text-center">
+                                            <div class="form-group mt-2">
+                                                <input id="regname" name="regname" class="form-style" @bind="userRegister.FirstName" placeholder="Nombre">
+                                                <i class="input-icon uil uil-user-circle"></i>
+                                                <ValidationMessage For="@(() => userRegister.FirstName)" />
+                                            </div>
+                                            <div class="form-group mt-2">
+                                                <input id="reglastname" name="loglastname" class="form-style" @bind="userRegister.LastName" placeholder="Apellido">
+                                                <i class="input-icon uil uil-user-circle"></i>
+                                                <ValidationMessage For="@(() => userRegister.LastName)" />
+                                            </div>
+                                            <div class="form-group mt-2">
+                                                <input id="regemail" name="logemail" class="form-style" @bind="userRegister.Email" placeholder="Email">
+                                                <i class="input-icon uil uil-at"></i>
+                                                <ValidationMessage For="@(() => userRegister.Email)" />
+                                            </div>
+                                            <div class="form-group mt-2">
+                                                <input id="logpass" name="logpass" @bind="userRegister.Password" class="form-style" placeholder="Contraseña" type="password">
+                                                <i class="input-icon uil uil-lock-alt"></i>
+                                                <ValidationMessage For="@(() => userRegister.Password)" />
+                                            </div>
+                                            <div class="form-group mt-2 mb-2">
+                                                <input id="confirmPassword" @bind="userRegister.ConfirmPassword" class="form-style" placeholder="Confirmar contraseña" type="password">
+                                                <i class="input-icon uil uil-lock-alt"></i>
+                                                <ValidationMessage For="@(() => userRegister.ConfirmPassword)" />
+                                            </div>
+                                            <div hidden="@HideMsg">
+                                                @if (!String.IsNullOrEmpty(errorMessage.ToString()))
+                                                {
+                                                    @if (!(messageCssClass == "text-success"))
+                                                    {
+                                                        <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Elevation="1">@messageCssClass</MudAlert>
+                                                    }
+                                                }
+                                            </div>
+                                            <MudCheckBox @bind-Checked="@CheckBox" @onclick="ActivateButton"
+                                                         Style="@("color:white;")">
+                                                <MudText Align="Align.Left" Typo="Typo.body2">
+                                                    <b class="words">
+                                                        He leído y acepto los Términos y Condiciones
+                                                    </b>
+                                                </MudText>
+                                            </MudCheckBox>
+
+                                            <MudButton Class="ml-auto mr-auto mt-1 mb-2"
+                                                       Variant="Variant.Filled"
+                                                       Style="@($"background-color: #f7a75a;color: #FFFFFF;width:80%;")"
+                                                       ButtonType="ButtonType.Submit"
+                                                       Disabled="@RegisterButtonOption">
+                                                Registrarse
+                                            </MudButton>
+                                            <div class="@messageCssClass">
+                                                <span>@message</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </EditForm>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*<div class="custom-footer">
+    <CustomFooter></CustomFooter>
+    </div>*@
+
+@code {
+    private Transition transition = Transition.Slide;
+    private bool HideMessage { get; set; } = true;
+    private bool HideMsg { get; set; } = true;
+
+    private UserRegister userRegister = new UserRegister();
+    private UserLogin userLogin = new UserLogin();
+
+    string message = string.Empty;
+    string messageCssClass = string.Empty;
+    private string errorMessage = string.Empty;
+
+    private string returnUrl = string.Empty;
+
+    public bool CheckBox { get; set; } = false;
+    public bool RegisterButtonOption { get; set; } = true;
+
+    protected override void OnInitialized()
+    {
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out var url))
+        {
+            returnUrl = url;
+        }
+    }
+
+    private void ShowMessage() => HideMessage = !HideMessage;
+    private void ShowMsg() => HideMsg = !HideMsg;
+    private void ActivateButton() => RegisterButtonOption = !RegisterButtonOption;
+
+    private async Task HandleLogin()
+    {
+        var result = await AuthService.Login(userLogin);
+        if (result.Success)
+        {
+            errorMessage = string.Empty;
+
+            await LocalStorage.SetItemAsync("authToken", result.Data);
+            await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            NavigationManager.NavigateTo("/home");
+        }
+        else
+        {
+            ShowMessage();
+            errorMessage = result.Message;
+        }
+    }
+
+    async Task HandleRegistration()
+    {
+        var result = await AuthService.Register(userRegister);
+        if (result.Success)
+        {
+            await LocalStorage.SetItemAsync("authToken", result.Data);
+            await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            message = result.Message;
+            if (result.Success)
+                messageCssClass = "text-success";
+            else
+                messageCssClass = "text-danger";
+            ShowMsg();
+
+            NavigationManager.NavigateTo("/home");
+        }
+    }
+
+    private async Task GoogleLogin()
+    {
+        await httpClient.GetAsync("api/auth/google-login");
+    }
+}

@@ -1,0 +1,80 @@
+﻿<MudLayout>
+    <MudAppBar Elevation="1" Style="@($"color:{Colors.Shades.Black}; background:{Colors.Shades.White};")">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+        <!-- Vista Web -->
+        <MudHidden Breakpoint="Breakpoint.MdAndUp" Invert="true">
+            <MudNavLink Href="home" Style="width:15%">
+                <MudImage Src="/images/LogoSinFondo.png"
+                          Color="@Color.Primary"
+                          Alt="Help2Help"
+                          Style="height:40px" />
+            </MudNavLink>
+            <MudSpacer />
+        </MudHidden>
+        <Search></Search>
+        <MudSpacer />
+        <Notifications></Notifications>
+        <UserButton></UserButton>
+    </MudAppBar>
+    <MudDrawer @bind-Open="@open" Elevation="1" Variant="DrawerVariant.Temporary" Class="mud-height-full">
+        <MudDrawerHeader>
+            <MudImage Src="../images/5.png" />
+        </MudDrawerHeader>
+        <MudNavMenu>
+            <MudNavLink Href="home">
+                <MudIcon Icon="@Icons.Material.Filled.Map" Color="Color.Default" Title="Mapa" />
+                Mapa
+            </MudNavLink>
+            <MudNavLink Href="Event">
+                <MudIcon Icon="@Icons.Material.Filled.EditNote" Color="Color.Default" Title="Crear Evento" />
+                Crear evento
+            </MudNavLink>
+            <MudNavLink Href="Myevents">
+                <MudIcon Icon="@Icons.Material.Filled.Event" Color="Color.Default" Title="Mis Eventos" />
+                Mis Eventos
+            </MudNavLink>
+            <MudNavLink Href="aboutUs">
+                <MudIcon Icon="@Icons.Material.Filled.PeopleAlt" Color="Color.Default" Title="Nosotros" />
+                Sobre nosotros
+            </MudNavLink>
+            <MudNavLink Href="HelpUsToHelp">
+                <MudIcon Icon="@Icons.Material.Filled.HealthAndSafety" Color="Color.Default" Title="Ayudanos" />
+                Ayudanos a Ayudar
+            </MudNavLink>
+            <MudNavLink Href="Analytics">
+                <MudIcon Icon="@Icons.Material.Filled.Analytics" Color="Color.Default" Title="Analítica" />
+                Analítica
+            </MudNavLink>
+            <MudNavLink Href="support">
+                <MudIcon Icon="@Icons.Material.Filled.Call" Color="Color.Default" Title="Soporte" />
+                Soporte
+            </MudNavLink>
+        </MudNavMenu>
+        <MudPaper Class="d-flex align-content-end flex-wrap flex-grow-1 ml-2" MaxWidth="608px" Height="320px" Elevation="0">
+            <MudLink Underline="Underline.Always" Color="Color.Default">
+                <MudText Typo="Typo.caption">Términos y condiciones</MudText>
+            </MudLink>
+            <MudText Typo="Typo.caption"> _ </MudText>
+            <MudLink Underline="Underline.Always" Color="Color.Default">
+                <MudText Typo="Typo.caption">Legales</MudText>
+            </MudLink>
+            <MudText Typo="Typo.caption"> _ </MudText>
+            <MudLink Href="aboutus" Underline="Underline.Always" Color="Color.Default">
+                <MudText Typo="Typo.caption">Sobre nosotros</MudText>
+            </MudLink>
+            <MudText Typo="Typo.caption"> _ </MudText>
+            <MudLink Underline="Underline.Always" Color="Color.Default">
+                <MudText Typo="Typo.caption">Help2Help © 2023</MudText>
+            </MudLink>
+        </MudPaper>
+    </MudDrawer>
+</MudLayout>
+
+@code {
+    bool open = false;
+
+    void ToggleDrawer()
+    {
+        open = !open;
+    }
+}

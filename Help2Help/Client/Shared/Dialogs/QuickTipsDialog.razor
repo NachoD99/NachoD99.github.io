@@ -1,0 +1,198 @@
+﻿@using System.Net
+@using System.Text
+@inject IUserService UserService
+
+<MudDialog DisableSidePadding="true" Style="width:90vw; padding-top:0; padding-bottom:0">
+    <DialogContent>
+        <MudContainer Class="align-content-end" Style="max-height: 400px; overflow-y: scroll">
+            @if (Loading)
+            {
+                <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+            }
+            else
+            {
+                <MudCarousel Style="height:270px" ShowArrows="true" AutoCycleTime="TimeSpan.FromSeconds(10)" ShowBullets="false" EnableSwipeGesture="true" AutoCycle="true" TData="object">
+                    <MudCarouselItem Transition="Transition.Slide">
+                        <div class="d-flex" style="height:100%">
+                            <!--VISTA MOBILE-->
+                        <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                                <MudStack Spacing="0" Class="d-flex align-center">
+                                    <MudText Align="Align.Center" Typo="Typo.body1" Style="white-space: pre-wrap;">Para ver que necesidades tienen otras personas y/o entidades, filtra en la página de inicio por categorías y visualiza los puntos de ubicación en el <MudLink Typo="Typo.h6" Underline="Underline.None" Color="Color.Error">MAPA</MudLink> con sus respectivos iconos.<br> Puedes seleccionar más de uno.</MudText>
+
+                                    <MudImage Src="../images/pin.png"
+                                          Alt="Mapa"
+                                          Style="height:12.5vh" />
+                                </MudStack>
+                            </MudHidden>
+                            <!--VISTA WEB-->
+                        <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+                                <MudStack Row="true" Class="d-flex align-center">
+                                    <MudText Align="Align.Center" Typo="Typo.body1" Style="white-space: pre-wrap;">Para ver que necesidades tienen otras personas y/o entidades, filtra en la página de inicio por categorías y visualiza los puntos de ubicación en el <MudLink Typo="Typo.h6" Underline="Underline.None" Color="Color.Error">MAPA</MudLink> con sus respectivos iconos.<br> Puedes seleccionar más de uno.</MudText>
+
+                                    <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+                                        <MudImage Src="../images/pin.png"
+                                              Alt="Mapa"
+                                              Style="height:30vh" />
+                                    </MudHidden>
+                                </MudStack>
+                            </MudHidden>
+                        </div>
+                    </MudCarouselItem>
+                    <MudCarouselItem Transition="Transition.Slide">
+                        <div class="d-flex" style="height:100%">
+                            <!--VISTA MOBILE-->
+                        <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                                <MudStack Spacing="0" Class="d-flex align-center">
+                                    <MudText Align="Align.Center" Typo="Typo.body1" Style="white-space: pre-wrap;">Para crear tu necesidad o punto de recolección de residuos, en el menú del inicio, selecciona la pagína <MudLink Href="/event" Typo="Typo.h6" Color="Color.Success">CREAR EVENTO</MudLink>. Allí, carga los datos en el formulario y ¡LISTO! Ya puedes visualizar tu evento en el mapa.</MudText>
+
+                                    <MudImage Src="../images/file.png"
+                                          Alt="Mapa"
+                                          Style="height:12.5vh" />
+                                </MudStack>
+                            </MudHidden>
+                            <!--VISTA WEB-->
+                        <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+                                <MudStack Row="true" Class="d-flex align-center">
+                                    <MudText Align="Align.Center" Typo="Typo.body1" Style="white-space: pre-wrap;">Para crear tu necesidad o punto de recolección de residuos, en el menú del inicio, selecciona la pagína <MudLink Href="/event" Typo="Typo.h6" Color="Color.Success">CREAR EVENTO</MudLink>. Allí, carga los datos en el formulario y ¡LISTO! Ya puedes visualizar tu evento en el mapa.</MudText>
+
+                                    <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+                                        <MudImage Src="../images/file.png"
+                                              Alt="Mapa"
+                                              Style="height:30vh" />
+                                    </MudHidden>
+                                </MudStack>
+                            </MudHidden>
+                        </div>
+                    </MudCarouselItem>
+                    <MudCarouselItem Transition="Transition.Slide">
+                        <div class="d-flex" style="height:100%">
+                            <!--VISTA MOBILE-->
+                        <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                                <MudStack Spacing="0" Class="d-flex align-center">
+                                    <MudText Align="Align.Center" Typo="Typo.body1" Style="white-space: pre-wrap;">Completa toda la información en tu perfil y realiza publicaciones contando los motivos y fines de tus eventos. <MudLink Typo="Typo.h6" Underline="Underline.None" Color="Color.Secondary">¡RECUERDA!</MudLink> Publica resultados de tus eventos para que tus contribuyentes lo vean y confíen en ti</MudText>
+
+                                    <MudImage Src="../images/social.png"
+                                          Alt="Mapa"
+                                          Style="height:12.5vh" />
+                                </MudStack>
+                            </MudHidden>
+                            <!--VISTA WEB-->
+                        <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+                                <MudStack Row="true" Class="d-flex align-center">
+                                    <MudText Align="Align.Center" Typo="Typo.body1" Style="white-space: pre-wrap;">Completa toda la información en tu perfil y realiza publicaciones contando los motivos y fines de tus eventos. <MudLink Typo="Typo.h6" Underline="Underline.None" Color="Color.Secondary">¡RECUERDA!</MudLink> Publica resultados de tus eventos para que tus contribuyentes lo vean y confíen en ti</MudText>
+
+                                    <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+                                        <MudImage Src="../images/social.png"
+                                              Alt="Mapa"
+                                              Style="height:30vh" />
+                                    </MudHidden>
+                                </MudStack>
+                            </MudHidden>
+                        </div>
+                    </MudCarouselItem>
+                    <MudCarouselItem Transition="Transition.Slide">
+                        <div class="d-flex" style="height:100%">
+                            <!--VISTA MOBILE-->
+                        <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                                <MudStack Spacing="0" Class="d-flex align-center">
+                                    <MudText Align="Align.Center" Typo="Typo.body1" Style="white-space: pre-wrap;">Pidele ayuda a <MudLink Typo="Typo.h6" Underline="Underline.None" Color="Color.Warning">HELPI</MudLink> nuestro Chatbot. Aprenderás a separar basura, ideas para reciclar residuos y también, en que condiciones donar. A su vez, puedes preguntarle como crear un evento o como buscar uno en el mapa.</MudText>
+
+                                    <MudImage Src="../images/robot.png"
+                                          Alt="Mapa"
+                                          Style="height:12.5vh" />
+                                </MudStack>
+                            </MudHidden>
+                            <!--VISTA WEB-->
+                        <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+                                <MudStack Row="true" Class="d-flex align-center">
+                                    <MudText Align="Align.Center" Typo="Typo.body1" Style="white-space: pre-wrap;">Pidele ayuda a <MudLink Typo="Typo.h6" Underline="Underline.None" Color="Color.Warning">HELPI</MudLink> nuestro Chatbot. Aprenderás a separar basura, ideas para reciclar residuos y también, en que condiciones donar. A su vez, puedes preguntarle como crear un evento o como buscar uno en el mapa.</MudText>
+
+                                    <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+                                        <MudImage Src="../images/robot.png"
+                                              Alt="Mapa"
+                                              Style="height:30vh" />
+                                    </MudHidden>
+                                </MudStack>
+                            </MudHidden>
+                        </div>
+                    </MudCarouselItem>
+                    <MudCarouselItem Transition="Transition.Slide">
+                        <div class="d-flex" style="height:100%">
+                            <!--VISTA MOBILE-->
+                        <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                                <MudStack Spacing="0" Class="d-flex align-center">
+                                    <MudText Align="Align.Center" Typo="Typo.body1" Style="white-space: pre-wrap;">Si eres una asociación civil puedes solicitar tu VERIFICACIÓN, para brindar más confianza a los demás y sepan que eres una institución legalmente. Ve <MudLink Href="/configuration" Typo="Typo.h6" Color="Color.Info">CONFIGURACIÓN</MudLink> y luego, “Solicitar verificación”.</MudText>
+
+                                    <MudImage Src="../images/check.png"
+                                          Alt="Mapa"
+                                          Style="height:12.5vh" />
+                                </MudStack>
+                            </MudHidden>
+                            <!--VISTA WEB-->
+                        <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+                                <MudStack Row="true" Class="d-flex align-center">
+                                    <MudText Align="Align.Center" Typo="Typo.body1" Style="white-space: pre-wrap;">Si eres una asociación civil puedes solicitar tu VERIFICACIÓN, para brindar más confianza a los demás y sepan que eres una institución legalmente. Ve a <MudLink Href="/configuration" Typo="Typo.h6" Color="Color.Info">CONFIGURACIÓN</MudLink> y luego, “Solicitar verificación”.</MudText>
+
+                                    <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+                                        <MudImage Src="../images/check.png"
+                                              Alt="Mapa"
+                                              Style="height:30vh" />
+                                    </MudHidden>
+                                </MudStack>
+                            </MudHidden>
+                        </div>
+                    </MudCarouselItem>
+                    <MudCarouselItem Transition="Transition.Slide">
+                        <div class="d-flex" style="height:100%">
+                            <!--VISTA MOBILE-->
+                        <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                                <MudStack Spacing="0" Class="d-flex align-center">
+                                    <MudText Align="Align.Center" Typo="Typo.body1" Style="white-space: pre-wrap;">Si sos usuario de donAR, puedes vincular tus necesidades para que aparezcan aquí como un evento. Ve a <MudLink Href="/configuration" Typo="Typo.h6" Color="Color.Info">CONFIGURACIÓN</MudLink> y luego, “Conectar a donAr”.</MudText>
+
+                                    <MudImage Src="../images/gear.png"
+                                          Alt="Mapa"
+                                          Style="height:12.5vh" />
+                                </MudStack>
+                            </MudHidden>
+                            <!--VISTA WEB-->
+                        <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+                                <MudStack Row="true" Class="d-flex align-center">
+                                    <MudText Align="Align.Center" Typo="Typo.body1" Style="white-space: pre-wrap;">Si sos usuario de donAR, puedes vincular tus necesidades para que aparezcan aquí como un evento. Ve a <MudLink Href="/configuration" Typo="Typo.h6" Color="Color.Info">CONFIGURACIÓN</MudLink> y luego, “Conectar a donAr”.</MudText>
+
+                                    <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+                                        <MudImage Src="../images/gear.png"
+                                              Alt="Mapa"
+                                              Style="height:30vh" />
+                                    </MudHidden>
+                                </MudStack>
+                            </MudHidden>
+                        </div>
+                    </MudCarouselItem>
+                </MudCarousel>
+                <MudCheckBox @bind-Checked="@Label_CheckBox1" Class="mt-0 pt-0" Label="No volver a mostrar" Color="Color.Primary"></MudCheckBox>
+            }
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" Class="mr-auto" OnClick="Ok">Aceptar</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        Loading = true;
+        Loading = false;
+    }
+
+    private bool Loading = false;
+    public bool Label_CheckBox1 { get; set; } = false;
+
+    private async Task Ok()
+    {
+        if (Label_CheckBox1) await UserService.NotShowGuide();
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

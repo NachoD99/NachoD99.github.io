@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google Tag Manager -->
+    <script>
+        (function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-KPJ2F8C');
+    </script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) (GOOGLE ANALYTICS) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZLV93W2JDG"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-ZLV93W2JDG');
+    </script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge">
+    <title>Help2Help</title>
+    <base href="/" />
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/app.css" rel="stylesheet" />
+    <link href="Help2Help.Client.styles.css" rel="stylesheet" />
+    <link href="manifest.json" rel="manifest" />
+    <link rel="icon" href="/images/Icono.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    <link rel='stylesheet' href='https://unicons.iconscout.com/release/v2.1.9/css/unicons.css'>
+    <script src="script.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8fKZgkAw7-yDBfrGiPhm7oyxQCT635HA&callback=initMap&libraries=places" async defer></script>
+    <script src="_content/GoogleMapsComponents/google-maps-components.js"></script>
+    <script src="https://kit.fontawesome.com/18b43971ba.js" crossorigin="anonymous"></script>
+    <!--DESCARGA DE DOCUMENTOS-->
+    <script>
+        window.BlazorDownloadFile = (fileName, data, mimeType) => {
+            const blob = new Blob([data], { type: mimeType });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            link.click();
+            window.URL.revokeObjectURL(url);
+        };
+    </script>
+</head>
+
+<body>
+    <div id="app">
+        <div class="boxes">
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+        </div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <!-- Start Single Page Apps for GitHub Pages -->
+    <script type="text/javascript">
+        (function (l) {
+            if (l.search) {
+                var q = {};
+                l.search.slice(1).split('&').forEach(function (v) {
+                    var a = v.split('=');
+                    q[a[0]] = a.slice(1).join('=').replace(/~and~/g, '&');
+                });
+                if (q.p !== undefined) {
+                    window.history.replaceState(null, null,
+                        l.pathname.slice(0, -1) + (q.p || '') +
+                        (q.q ? ('?' + q.q) : '') +
+                        l.hash
+                    );
+                }
+            }
+        }(window.location))
+    </script>
+    <!-- End Single Page Apps for GitHub Pages -->
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script>navigator.serviceWorker.register('service-worker.js');</script>
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            border: none;
+            box-sizing: border-box;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            width: 100vw;
+            border: none;
+            height: 100vh;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%,-50%);
+            overflow-y: hidden;
+        }
+
+        .boxes {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: white;
+            filter: blur(10px) contrast(18);
+            mix-blend-mode: screen;
+        }
+
+        .box {
+            width: 50px;
+            height: 50px;
+            border-radius: 100%;
+            background: linear-gradient(112deg, #f9f630, #937b0f);
+        }
+
+            .box:nth-child(odd) {
+                animation: spinLeft 2.5s 0.2s linear both infinite;
+            }
+
+            .box:nth-child(even) {
+                animation: spinRight 1s 0.4s linear both infinite;
+            }
+
+            .box:nth-child(2n) {
+                animation: pulse 2s ease-in-out 0.1s infinite;
+            }
+
+            .box:nth-child(4n) {
+                animation-direction: reverse;
+            }
+
+        @keyframes pulse {
+            50% {
+                transform: scale(1.8);
+            }
+
+            70% {
+                transform: scale(0.6);
+            }
+        }
+
+        @keyframes spinLeft {
+            from {
+                transform: rotate(0deg) translate(50px);
+            }
+
+            to {
+                transform: rotate(360deg) translate(50px);
+            }
+        }
+
+        @keyframes spinRight {
+            from {
+                transform: rotate(360deg) translate(50px);
+            }
+
+            to {
+                transform: rotate(0deg) translate(50px);
+            }
+        }
+    </style>
+</body>
+
+</html>

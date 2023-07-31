@@ -1,0 +1,1106 @@
+﻿@page "/profile"
+@page "/profile/{id:int}"
+@inject IUserService UserService
+@inject IEventService EventService
+@inject IPublicationService PublicationService
+@inject ILikeService LikeService
+@inject ICommentService CommentService
+@inject IDialogService DialogService
+@attribute [Authorize]
+
+@*<AuthorizeView>
+    <h3>Hi! You're logged in with <i>@context.User.Identity.Name</i>.</h3>
+    </AuthorizeView>*@
+
+
+@if (Id == 0)
+{
+    //Perfil de usuario logueado
+    <CurrentUserProfile></CurrentUserProfile>
+
+}
+else
+{
+    <style>
+        body {
+            min-height: 100vh;
+        }
+    </style>
+    <MudLayout>
+        <CustomNavMenu></CustomNavMenu>
+        <MudMainContent>
+            <MudGrid Spacing="0" Justify="Justify.Center" Style="width:100%;">
+                <div class="main-card">
+                    <MudPaper Height="25vh"
+                          Style="@($"background-image:url('" + portraitUrl + "');border-top-left-radius:30%; border-bottom-right-radius:30%;position: relative")"
+                          Square="true"
+                          Elevation="0">
+                        @{
+                            string photo = user.ProfilePicture == string.Empty ? "/images/user.png" : user.ProfilePicture;
+                        }
+                        <!--VISTA MOBILE-->
+                    <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                            <MudImage Src="@photo"
+                                  Fluid="true"
+                                  Height="110"
+                                  Width="110"
+                                  Alt="Profile"
+                                  Elevation="25"
+                                  Class="rounded-circle ml-2 mt-5" />
+                        </MudHidden>
+                        <!--VISTA WEB-->
+                    <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+                            <MudImage Src="@photo"
+                                  Fluid="true"
+                                  Height="125"
+                                  Width="125"
+                                  Alt="Profile"
+                                  Elevation="25"
+                                  Class="rounded-circle ml-2 mt-5" />
+                        </MudHidden>
+                    </MudPaper>
+                    <MudCard Height="auto" Outlined="true" Style="@($"background:{Colors.Shades.White};")" Class="d-block mt-4 rounded-lg">
+                        @{
+                            string fullName = string.Concat(@user.FirstName, ' ', @user.LastName);
+                            string whatsapp = string.Concat("https://wa.me/", @UserService.UserDTO.Phone, "?text=Hola!%20Vi%20su%20perfil%20en%20Help2Help%20");
+                            string direction = string.Empty;
+                            if (@user.Street != string.Empty) direction = string.Concat(@user.Street, " ", @user.StreetNumber, ", ", @user.Locality, ", ", @user.Province, ", ", @user.Country);
+                        }
+                        <MudCardHeader Class="my-0 pb-0 pt-0">
+                            <CardHeaderContent>
+                                <MudStack Row="true">
+                                    <MudText Typo="Typo.h6" Align="Align.Start"><b>@fullName</b></MudText>
+                                    @if (@user.IsONGVerified)
+                                    {
+                                        <MudIcon Class="mt-1" Icon="@Icons.Material.Filled.Verified" Color="Color.Info" Title="Verified" />
+
+                                    }
+                                </MudStack>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent Class="pl-0 pt-0">
+                            <MudGrid Spacing="0" Justify="Justify.Center" Class="pl-0 ml-0" Style="width:100%;">
+                                <MudItem Style="width:40%;" Class="pl-2 pb-2" xs="12" sm="6">
+
+                                    @if (user.FirstName == string.Empty && user.LastName == string.Empty && user.Email == string.Empty)
+                                    {
+                                        <MudSkeleton />
+                                        <MudSkeleton />
+                                        <MudSkeleton />
+                                    }
+                                    else
+                                    {
+                                        <MudList Dense="true" Clickable="false">
+                                            <MudListItem Text="@user.Email" Icon="@Icons.Filled.Mail" />
+                                            @if (direction != string.Empty)
+                                            {
+                                                <MudListItem Text="@direction" Icon="@Icons.Filled.Place" />
+                                            }
+                                            @if (user.WebPageLink != string.Empty)
+                                            {
+                                                <MudListItem Icon="@Icons.Filled.Web">
+                                                    <MudLink Href="@user.WebPageLink">Página web</MudLink>
+                                                </MudListItem>
+                                            }
+                                        </MudList>
+                                    }
+                                    <MudStack Row="true" Class="ml-4">
+                                        @if (user.Phone != string.Empty)
+                                        {
+                                            <MudIconButton Icon="@Icons.Material.Filled.Whatsapp"
+                                                   Style="@($"background:#25d366;color:#FFF;")"
+                                                   Target="_blank"
+                                                   Size="Size.Small"
+                                                   Href="@whatsapp"
+                                                   aria-label="share"></MudIconButton>
+                                        }
+                                        else
+                                        {
+                                            <MudIconButton Icon="@Icons.Material.Filled.Whatsapp"
+                                                   Target="_blank"
+                                                   Size="Size.Small"
+                                                   Href="@whatsapp"
+                                                   Disabled="true" aria-label="share"></MudIconButton>
+
+                                        }
+                                        @if (user.FacebookLink != string.Empty)
+                                        {
+                                            <MudIconButton Icon="@Icons.Custom.Brands.Facebook"
+                                                   Style="@($"background:#3b5998;color:#FFF;")"
+                                                   Target="_blank"
+                                                   Size="Size.Small"
+                                                   Href="@user.FacebookLink"
+                                                   aria-label="share"></MudIconButton>
+                                        }
+                                        else
+                                        {
+                                            <MudIconButton Icon="@Icons.Custom.Brands.Facebook"
+                                                   Target="_blank"
+                                                   Size="Size.Small"
+                                                   Disabled="true" aria-label="share"></MudIconButton>
+                                        }
+                                        @if (user.InstagramLink != string.Empty)
+                                        {
+                                            <MudIconButton Icon="@Icons.Custom.Brands.Instagram"
+                                                   Style="@($"background:radial-gradient(circle farthest-corner at 28% 100%, #fcdf8f 0%, #fbd377 10%, #fa8e37 22%,  #f73344 35%, transparent 65%), linear-gradient(145deg, #3051f1 10%, #c92bb7 70%);color:#FFF;")"
+                                                   Target="_blank"
+                                                   Size="Size.Small"
+                                                   Href="@user.InstagramLink"
+                                                   aria-label="share"></MudIconButton>
+                                        }
+                                        else
+                                        {
+                                            <MudIconButton Icon="@Icons.Custom.Brands.Instagram"
+                                                   Target="_blank"
+                                                   Size="Size.Small"
+                                                   Disabled="true" aria-label="share"></MudIconButton>
+                                        }
+                                    </MudStack>
+                                </MudItem>
+                                <MudItem Style="width:50%;" Class="pl-2" xs="12" sm="6">
+                                    @if (@user.Description == string.Empty)
+                                    {
+                                        <MudText Typo="Typo.body1">Aquí puedes añadir una descripción de tu actividad o de la actividad de la organización. Más información significa que otras personas podrán conocer más sobre ti.</MudText>
+                                    }
+                                    else
+                                    {
+                                        <MudText Typo="Typo.body1">@user.Description</MudText>
+                                    }
+                                </MudItem>
+                            </MudGrid>
+                        </MudCardContent>
+                    </MudCard>
+                    <MudGrid Spacing="2" Justify="Justify.SpaceBetween">
+                        <!-- Vista Web -->
+                    <MudHidden Breakpoint="Breakpoint.MdAndUp" Invert="true">
+                            <MudItem Style="width:50%;" xs="12" sm="6">
+                                <MudPaper Height="auto" Elevation="2" Class="relative mt-4 mb-4 rounded-lg" Style="@($"background:{Colors.Shades.White};")">
+                                    <MudText Typo="Typo.h6"
+                                         Class="ml-2 pt-2 pb-2"
+                                         Align="Align.Start"><b>Eventos</b></MudText>
+
+                                </MudPaper>
+                                @if (EventService.Events?.Count == 0)
+                                {
+                                    @if (eventResponse)
+                                    {
+                                        <MudGrid Justify="Justify.FlexStart">
+                                            <MudItem>
+                                                <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+                                            </MudItem>
+                                            <MudItem Style="display: flex; align-items: center;">
+                                                <MudText Typo="Typo.subtitle2">Cargando Eventos...</MudText>
+                                            </MudItem>
+                                        </MudGrid>
+                                    }
+                                    else
+                                    {
+                                        <MudText Typo="Typo.body1">No se han encontrado eventos</MudText>
+                                    }
+                                }                                                                                                                                    
+                                else
+                                {
+                                    @foreach (var eventCard in EventService.Events)
+                                    {
+                                        <MudCard Outlined="true" Elevation="6" Class="mb-3 rounded-lg" Style="width:100%; heigth:auto;">
+                                            <MudCardHeader Class="pb-0">
+                                                <CardHeaderAvatar>
+                                                    @switch (eventCard.SubCategory)
+                                                    {
+                                                        case "Papeles (Diarios, revistas, impresiones)":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                                            break;
+                                                        case "Cajas de Cartón":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                                            break;
+                                                        case "Cartón de uso cotidiano (Cajas de alimentos, tubitos de papel)":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                                            break;
+                                                        case "Envases tipo brick (lavados)":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                                            break;
+                                                        case "Otros Papeles y Cartones":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                                            break;
+                                                        case "Botellas de Vidrio":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/2-Vidrio.png" />
+                                                            break;
+                                                        case "Tarros y frascos de conservas":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/2-Vidrio.png" />
+                                                            break;
+                                                        case "Jarras y copas de vidrio":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/2-Vidrio.png" />
+                                                            break;
+                                                        case "Otros Vidrios":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/2-Vidrio.png" />
+                                                            break;
+                                                        case "Botellas de Plástico":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                                            break;
+                                                        case "Tapitas":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                                            break;
+                                                        case "Bandejas":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                                            break;
+                                                        case "Bolsas de plástico":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                                            break;
+                                                        case "Otros Plásticos":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                                            break;
+                                                        case "Aluminio (Latas)":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/4-Metales.png" />
+                                                            break;
+                                                        case "Cobre":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/4-Metales.png" />
+                                                            break;
+                                                        case "Hierro":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/4-Metales.png" />
+                                                            break;
+                                                        case "Otros Metales":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/4-Metales.png" />
+                                                            break;
+                                                        case "Pilas y baterías":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                                            break;
+                                                        case "Aceites":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                                            break;
+                                                        case "Residuos tecnológicos":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                                            break;
+                                                        case "Residuos hospitalarios infecciosos":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                                            break;
+                                                        case "Otros Desechos Peligrosos":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                                            break;
+                                                        case "Residuos orgánicos":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/19-Organicos.png" />
+                                                            break;
+                                                        case "Perecederos":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/7-Alimentos.png" />
+                                                            break;
+                                                        case "No perecederos":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/7-Alimentos.png" />
+                                                            break;
+                                                        case "Leche en polvo":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/7-Alimentos.png" />
+                                                            break;
+                                                        case "Leche entera":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/7-Alimentos.png" />
+                                                            break;
+                                                        case "Artículos para Bebés":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/8-Bebés.png" />
+                                                            break;
+                                                        case "Niños":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/9-Ropa.png" />
+                                                            break;
+                                                        case "Jóvenes":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/9-Ropa.png" />
+                                                            break;
+                                                        case "Adultos":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/9-Ropa.png" />
+                                                            break;
+                                                        case "Colchones y frazadas":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                                            break;
+                                                        case "Higiene y limpieza":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                                            break;
+                                                        case "Muebles":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                                            break;
+                                                        case "Electrodomésticos":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                                            break;
+                                                        case "Materiales para construcción":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                                            break;
+                                                        case "Pintura":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                                            break;
+                                                        case "Otros artículos para el hogar":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                                            break;
+                                                        case "Computadoras":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/11-Tecnología.png" />
+                                                            break;
+                                                        case "Celulares":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/11-Tecnología.png" />
+                                                            break;
+                                                        case "Otros artículos tecnológicos":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/11-Tecnología.png" />
+                                                            break;
+                                                        case "Juguetes":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/12-Recreación.png" />
+                                                            break;
+                                                        case "Instrumentos musicales":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/12-Recreación.png" />
+                                                            break;
+                                                        case "Artículos deportivos":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/12-Recreación.png" />
+                                                            break;
+                                                        case "Otros artículos para recreación":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/12-Recreación.png" />
+                                                            break;
+                                                        case "Útiles escolares y libros":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/13-UtilesEscolares.png" />
+                                                            break;
+                                                        case "Medicamentos":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/14-Salud.png" />
+                                                            break;
+                                                        case "Ortopedia":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/14-Salud.png" />
+                                                            break;
+                                                        case "Sangre":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/14-Salud.png" />
+                                                            break;
+                                                        case "Otros artículos para salud":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/14-Salud.png" />
+                                                            break;
+                                                        case "Adopción":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/15-Mascotas.png" />
+                                                            break;
+                                                        case "Alimento balanceado":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/15-Mascotas.png" />
+                                                            break;
+                                                        case "Otros artículos de mascotas":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/15-Mascotas.png" />
+                                                            break;
+                                                        case "Voluntariado":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/18-Voluntariado.png" />
+                                                            break;
+                                                        case "Dinero":
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/17-Dinero.png" />
+                                                            break;
+                                                        default:
+                                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/16-Otro.png" />
+                                                            break;
+                                                    }
+                                                </CardHeaderAvatar>
+                                                <CardHeaderContent>
+                                                    <MudText Typo="Typo.h6"><b>@eventCard.Title</b></MudText>
+                                                </CardHeaderContent>
+                                                <CardHeaderActions>
+                                                    <MudIconButton Icon="@Icons.Material.Filled.Report"
+                                                       Color="Color.Default"
+                                                       OnClick="@((e) => ReportEvent(eventCard))"
+                                                       aria-label="edit"></MudIconButton>
+                                                </CardHeaderActions>
+                                            </MudCardHeader>
+                                            <MudCardContent Class="pb-0">
+                                                <MudText Typo="Typo.body1">@eventCard.Description</MudText>
+
+                                                @*<MudDivider DividerType="DividerType.FullWidth" Class="my-6" Style="@($"background:{Colors.Shades.Black};")" />*@
+                                                <MudGrid Justify="Justify.FlexStart" Spacing="2">
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.subtitle2" Style="@($"color:{Colors.Grey.Darken1};")">@eventCard.FatherCategory</MudText>
+                                                    </MudItem>
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.subtitle2" Style="@($"color:{Colors.Grey.Darken1};")">@eventCard.MainCategory</MudText>
+                                                    </MudItem>
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.subtitle2" Style="@($"color:{Colors.Grey.Darken1};")">@eventCard.SubCategory</MudText>
+                                                    </MudItem>
+                                                </MudGrid>
+                                                @{
+                                                    var date = string.Concat(eventCard.StartDate.ToShortDateString(), " - ", eventCard.EndDate.ToShortDateString());
+                                                }
+                                                <MudText Typo="Typo.subtitle2">@date</MudText>
+                                                @{
+                                                    var st = string.Concat(eventCard.Street, " ", eventCard.StreetNumber, ", ", eventCard.City, ", ", eventCard.Province);
+                                                }
+                                                <MudText Typo="Typo.subtitle2" Style="@($"color:{Colors.Grey.Darken1};")">@st</MudText>
+                                            </MudCardContent>
+                                            <MudCardActions Class="mt-n2 pt-n4 mr-0">
+                                                @{
+                                                    var wppLink = string.Concat("https://wa.me/", @UserService.UserDTO.Phone, "?text=Hola!%20Me%20comunico%20por%20el%20evento%20", @eventCard.Title);
+                                                }
+                                                @if (!string.IsNullOrEmpty(eventCard.MercadoPagoLink))
+                                                {
+                                                    <MudButton Color="Color.Info"
+                                               Target="_blank"
+                                               Size="Size.Medium"
+                                               Href="@eventCard.MercadoPagoLink"
+                                               Class="mr-auto"
+                                               StartIcon="@Icons.Material.Filled.AttachMoney">Donar</MudButton>
+                                                }
+                                                <MudIconButton Style="@($"background:#25d366;color:#FFF;")"
+                                                   Target="_blank"
+                                                   Size="Size.Medium"
+                                                   Href="@wppLink"
+                                                   Class="ml-auto mr-4"
+                                                   Icon="@Icons.Material.Filled.Whatsapp"></MudIconButton>
+                                            </MudCardActions>
+                                        </MudCard>
+                                    }
+                                }
+
+                            </MudItem>
+                            <MudItem Style="width:50%;" xs="12" sm="6">
+                                <MudPaper Height="auto" Elevation="2" Class="relative mt-4 mb-4 rounded-lg" Style="@($"background:{Colors.Shades.White};")">
+                                    <MudText Typo="Typo.h6"
+                                         Class="ml-2 pt-2 pb-2"
+                                         Align="Align.Start"><b>Publicaciones</b></MudText>
+                                </MudPaper>
+                                @if (PublicationService.PublicationsDTO.Count == 0)
+                                {
+                                    @if (publicationResponse)
+                                    {
+                                        <MudGrid Justify="Justify.FlexStart">
+                                            <MudItem>
+                                                <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+                                            </MudItem>
+                                            <MudItem Style="display: flex; align-items: center;">
+                                                <MudText Typo="Typo.subtitle2">Cargando Publicaciones...</MudText>
+                                            </MudItem>
+                                        </MudGrid>
+                                    }
+                                    else
+                                    {
+                                        <MudText Typo="Typo.body1">No se han encontrado publicaciones</MudText>
+                                    }
+                                }
+                                else
+                                {
+                                    @foreach (var publication in PublicationService.PublicationsDTO)
+                                    {
+                                        <MudCard Class="mb-3 rounded-lg" Style="width:100%; heigth:auto;">
+                                            <MudCardHeader Class="mb-0">
+                                                <CardHeaderAvatar>
+                                                    @if (user.ProfilePicture == string.Empty)
+                                                    {
+                                                        <MudAvatar Color="Color.Tertiary">@avatarLetter</MudAvatar>
+                                                    }
+                                                    else
+                                                    {
+                                                        <MudAvatar Size="Size.Medium" Image="@user.ProfilePicture" />
+                                                    }
+                                                </CardHeaderAvatar>
+                                                <CardHeaderContent>
+                                                    @{
+                                                        string fullName = string.Concat(@user.FirstName, ' ', @user.LastName);
+                                                    }
+                                                    <MudStack Row="true">
+                                                        <MudText Typo="Typo.body1" Align="Align.Start"><b>@fullName</b></MudText>
+                                                        @if (@user.IsONGVerified)
+                                                        {
+                                                            <MudIcon Icon="@Icons.Material.Filled.Verified" Color="Color.Info" Title="Verified" />
+
+                                                        }
+                                                    </MudStack>
+                                                    <MudText Typo="Typo.caption">@publication.CreatedDate</MudText>
+                                                </CardHeaderContent>
+                                            </MudCardHeader>
+                                            <MudCardContent Class="mt-0">
+                                                @if (publication.Images.Count > 1)
+                                                {
+                                                    <MudCarousel Class="mud-width-full" Style="height:15rem;"
+                                                 ShowArrows="true"
+                                                 ShowBullets="false"
+                                                 EnableSwipeGesture="true"
+                                                 AutoCycle="false"
+                                                 TData="object">
+                                                        @foreach (var image in publication.Images)
+                                                        {
+                                                            <MudCarouselItem Transition="Transition.Slide">
+                                                                <MudImage Fluid="true"
+                                                      Src="@image.FileContent"
+                                                      ObjectFit="ObjectFit.None"
+                                                      Height="250" />
+                                                            </MudCarouselItem>
+                                                        }
+                                                    </MudCarousel>
+                                                }
+                                                else if (publication.Images.Count == 1)
+                                                {
+                                                    <MudImage Class="mud-width-full"
+                                              Src="@publication.Images.FirstOrDefault().FileContent"
+                                              Fluid="true"
+                                              ObjectFit="ObjectFit.None"
+                                              Height="250" />
+                                                }
+                                                <MudText Typo="Typo.body2">@publication.Description</MudText>
+                                            </MudCardContent>
+                                            <MudCardActions>
+                                                <MudPaper Class="d-flex flex-column flex-grow-1 gap-0" Elevation="0">
+                                                    <MudPaper Class="pa-0" Elevation="0">
+                                                        <MudStack Row="true">
+                                                            <MudText Class="ml-1 mr-n3 pa-0" Typo="Typo.body1">@publication.Like.Count</MudText>
+                                                            <MudIconButton Class="pa-0 ma-0"
+                                                               Icon="@Icons.Material.Filled.Favorite"
+                                                               OnClick="@((e) => Like(publication.Id))"
+                                                               DisableRipple="true"
+                                                               Color="@((publication.Like.Liked)  ? Color.Error : Color.Default)" />
+                                                        </MudStack>
+                                                    </MudPaper>
+                                                    <MudPaper Class="pa-0" Elevation="0">
+                                                        <MudStack Row="true">
+                                                            <MudTextField Class="mt-n4" @bind-Value="NewCommentText" DisableUnderLine="true" Placeholder="Agrega un comentario" />
+                                                            <MudIconButton Class="pa-0 mt-1"
+                                                               Icon="@Icons.Material.Filled.Send"
+                                                               OnClick="@((e) => AddComment(publication.Id))"
+                                                               Color="Color.Info"
+                                                               DisableRipple="true" />
+                                                        </MudStack>
+                                                    </MudPaper>
+                                                    <MudPaper Class="pa-0" Elevation="0">
+                                                        @if (publication.Comments.Count > 0)
+                                                        {
+                                                            @foreach (var comment in publication.Comments)
+                                                            {
+                                                                <MudStack Row="true" Class="mt-2">
+                                                                    <MudImage Src="@comment.UserProfilePicture"
+                                                          Fluid="true"
+                                                          Height="25"
+                                                          Width="25"
+                                                          Alt="User Comment"
+                                                          Class="rounded-circle" />
+                                                                    <MudText Typo="Typo.subtitle2">@comment.UserName</MudText>
+                                                                </MudStack>
+
+                                                                <MudText Class="ml-10" Typo="Typo.body1">@comment.Message</MudText>
+                                                            }
+                                                        }
+                                                    </MudPaper>
+                                                </MudPaper>
+                                            </MudCardActions>
+                                        </MudCard>
+                                    }
+                                }
+                            </MudItem>
+                        </MudHidden>
+                        <!-- Vista Mobile -->
+                    <MudHidden Breakpoint="Breakpoint.MdAndDown" Invert="true">
+                            <MudTabs Outlined="false" Elevation="4" Position="Position.Top" Rounded="true" Border="false" Centered="true"
+                                 ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-3">
+                                <MudTabPanel Text="Eventos">
+                                    <MudItem xs="12" sm="6">
+                                        @if (EventService.Events?.Count == 0)
+                                        {
+                                            @if (eventResponse)
+                                            {
+                                                <MudGrid Justify="Justify.FlexStart">
+                                                    <MudItem>
+                                                        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+                                                    </MudItem>
+                                                    <MudItem Style="display: flex; align-items: center;">
+                                                        <MudText Typo="Typo.subtitle2">Cargando Eventos...</MudText>
+                                                    </MudItem>
+                                                </MudGrid>
+                                            }
+                                            else
+                                            {
+                                                <MudText Typo="Typo.body1">No se han encontrado eventos</MudText>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            @foreach (var eventCard in EventService.Events)
+                                            {
+                                                <MudCard Outlined="true" Elevation="6" Class="mb-3 rounded-lg" Style="width:100%; heigth:auto;">
+                                                    <MudCardHeader Class="pb-0">
+                                                        <CardHeaderAvatar>
+                                                            @switch (eventCard.SubCategory)
+                                                            {
+                                                                case "Papeles (Diarios, revistas, impresiones)":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                                                    break;
+                                                                case "Cajas de Cartón":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                                                    break;
+                                                                case "Cartón de uso cotidiano (Cajas de alimentos, tubitos de papel)":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                                                    break;
+                                                                case "Envases tipo brick (lavados)":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                                                    break;
+                                                                case "Otros Papeles y Cartones":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                                                    break;
+                                                                case "Botellas de Vidrio":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/2-Vidrio.png" />
+                                                                    break;
+                                                                case "Tarros y frascos de conservas":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/2-Vidrio.png" />
+                                                                    break;
+                                                                case "Jarras y copas de vidrio":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/2-Vidrio.png" />
+                                                                    break;
+                                                                case "Otros Vidrios":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/2-Vidrio.png" />
+                                                                    break;
+                                                                case "Botellas de Plástico":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                                                    break;
+                                                                case "Tapitas":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                                                    break;
+                                                                case "Bandejas":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                                                    break;
+                                                                case "Bolsas de plástico":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                                                    break;
+                                                                case "Otros Plásticos":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                                                    break;
+                                                                case "Aluminio (Latas)":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/4-Metales.png" />
+                                                                    break;
+                                                                case "Cobre":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/4-Metales.png" />
+                                                                    break;
+                                                                case "Hierro":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/4-Metales.png" />
+                                                                    break;
+                                                                case "Otros Metales":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/4-Metales.png" />
+                                                                    break;
+                                                                case "Pilas y baterías":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                                                    break;
+                                                                case "Aceites":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                                                    break;
+                                                                case "Residuos tecnológicos":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                                                    break;
+                                                                case "Residuos hospitalarios infecciosos":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                                                    break;
+                                                                case "Otros Desechos Peligrosos":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                                                    break;
+                                                                case "Residuos orgánicos":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/19-Organicos.png" />
+                                                                    break;
+                                                                case "Perecederos":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/7-Alimentos.png" />
+                                                                    break;
+                                                                case "No perecederos":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/7-Alimentos.png" />
+                                                                    break;
+                                                                case "Leche en polvo":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/7-Alimentos.png" />
+                                                                    break;
+                                                                case "Leche entera":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/7-Alimentos.png" />
+                                                                    break;
+                                                                case "Artículos para Bebés":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/8-Bebés.png" />
+                                                                    break;
+                                                                case "Niños":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/9-Ropa.png" />
+                                                                    break;
+                                                                case "Jóvenes":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/9-Ropa.png" />
+                                                                    break;
+                                                                case "Adultos":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/9-Ropa.png" />
+                                                                    break;
+                                                                case "Colchones y frazadas":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                                                    break;
+                                                                case "Higiene y limpieza":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                                                    break;
+                                                                case "Muebles":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                                                    break;
+                                                                case "Electrodomésticos":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                                                    break;
+                                                                case "Materiales para construcción":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                                                    break;
+                                                                case "Pintura":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                                                    break;
+                                                                case "Otros artículos para el hogar":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                                                    break;
+                                                                case "Computadoras":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/11-Tecnología.png" />
+                                                                    break;
+                                                                case "Celulares":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/11-Tecnología.png" />
+                                                                    break;
+                                                                case "Otros artículos tecnológicos":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/11-Tecnología.png" />
+                                                                    break;
+                                                                case "Juguetes":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/12-Recreación.png" />
+                                                                    break;
+                                                                case "Instrumentos musicales":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/12-Recreación.png" />
+                                                                    break;
+                                                                case "Artículos deportivos":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/12-Recreación.png" />
+                                                                    break;
+                                                                case "Otros artículos para recreación":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/12-Recreación.png" />
+                                                                    break;
+                                                                case "Útiles escolares y libros":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/13-UtilesEscolares.png" />
+                                                                    break;
+                                                                case "Medicamentos":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/14-Salud.png" />
+                                                                    break;
+                                                                case "Ortopedia":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/14-Salud.png" />
+                                                                    break;
+                                                                case "Sangre":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/14-Salud.png" />
+                                                                    break;
+                                                                case "Otros artículos para salud":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/14-Salud.png" />
+                                                                    break;
+                                                                case "Adopción":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/15-Mascotas.png" />
+                                                                    break;
+                                                                case "Alimento balanceado":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/15-Mascotas.png" />
+                                                                    break;
+                                                                case "Otros artículos de mascotas":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/15-Mascotas.png" />
+                                                                    break;
+                                                                case "Voluntariado":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/18-Voluntariado.png" />
+                                                                    break;
+                                                                case "Dinero":
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/17-Dinero.png" />
+                                                                    break;
+                                                                default:
+                                                                    <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/16-Otro.png" />
+                                                                    break;
+                                                            }
+                                                        </CardHeaderAvatar>
+                                                        <CardHeaderContent>
+                                                            <MudText Typo="Typo.h6"><b>@eventCard.Title</b></MudText>
+                                                        </CardHeaderContent>
+                                                        <CardHeaderActions>
+                                                            <MudIconButton Icon="@Icons.Material.Filled.Report"
+                                                               Color="Color.Default"
+                                                               OnClick="@((e) => ReportEvent(eventCard))"
+                                                               aria-label="edit"></MudIconButton>
+                                                        </CardHeaderActions>
+                                                    </MudCardHeader>
+                                                    <MudCardContent Class="pb-0">
+                                                        <MudText Typo="Typo.body1">@eventCard.Description</MudText>
+
+                                                        @*<MudDivider DividerType="DividerType.FullWidth" Class="my-6" Style="@($"background:{Colors.Shades.Black};")" />*@
+                                                        <MudGrid Justify="Justify.FlexStart" Spacing="2">
+                                                            <MudItem>
+                                                                <MudText Typo="Typo.subtitle2" Style="@($"color:{Colors.Grey.Darken1};")">@eventCard.FatherCategory</MudText>
+                                                            </MudItem>
+                                                            <MudItem>
+                                                                <MudText Typo="Typo.subtitle2" Style="@($"color:{Colors.Grey.Darken1};")">@eventCard.MainCategory</MudText>
+                                                            </MudItem>
+                                                            <MudItem>
+                                                                <MudText Typo="Typo.subtitle2" Style="@($"color:{Colors.Grey.Darken1};")">@eventCard.SubCategory</MudText>
+                                                            </MudItem>
+                                                        </MudGrid>
+                                                        @{
+                                                            var date = string.Concat(eventCard.StartDate.ToShortDateString(), " - ", eventCard.EndDate.ToShortDateString());
+                                                        }
+                                                        <MudText Typo="Typo.subtitle2">@date</MudText>
+                                                        @{
+                                                            var st = string.Concat(eventCard.Street, " ", eventCard.StreetNumber, ", ", eventCard.City, ", ", eventCard.Province);
+                                                        }
+                                                        <MudText Typo="Typo.subtitle2" Style="@($"color:{Colors.Grey.Darken1};")">@st</MudText>
+                                                    </MudCardContent>
+                                                    <MudCardActions Class="mt-n2 pt-n4 mr-0">
+                                                        @{
+                                                            var wppLink = string.Concat("https://wa.me/", @UserService.UserDTO.Phone, "?text=Hola!%20Me%20comunico%20por%20el%20evento%20", @eventCard.Title);
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(eventCard.MercadoPagoLink))
+                                                        {
+                                                            <MudButton Color="Color.Info"
+                                                       Target="_blank"
+                                                       Size="Size.Medium"
+                                                       Href="@eventCard.MercadoPagoLink"
+                                                       Class="mr-auto"
+                                                       StartIcon="@Icons.Material.Filled.AttachMoney">Donar</MudButton>
+                                                        }
+                                                        <MudIconButton Style="@($"background:#25d366;color:#FFF;")"
+                                                           Target="_blank"
+                                                           Size="Size.Medium"
+                                                           Href="@wppLink"
+                                                           Class="ml-auto mr-4"
+                                                           Icon="@Icons.Material.Filled.Whatsapp"></MudIconButton>
+                                                    </MudCardActions>
+                                                </MudCard>
+                                            }
+                                        }
+                                    </MudItem>
+                                </MudTabPanel>
+                                <MudTabPanel Text="Publicaciones">
+                                    <MudItem xs="12" sm="6">
+                                        @if (PublicationService.PublicationsDTO.Count == 0)
+                                        {
+                                            @if (publicationResponse)
+                                            {
+                                                <MudGrid Justify="Justify.FlexStart">
+                                                    <MudItem>
+                                                        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+                                                    </MudItem>
+                                                    <MudItem Style="display: flex; align-items: center;">
+                                                        <MudText Typo="Typo.subtitle2">Cargando Publicaciones...</MudText>
+                                                    </MudItem>
+                                                </MudGrid>
+                                            }
+                                            else
+                                            {
+                                                <MudText Typo="Typo.body1">No se han encontrado publicaciones</MudText>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            @foreach (var publication in PublicationService.PublicationsDTO)
+                                            {
+                                                <MudCard Class="mb-3 rounded-lg" Outlined="true" Style="width:100%; heigth:auto;">
+                                                    <MudCardHeader Class="mb-0">
+                                                        <CardHeaderAvatar>
+                                                            @{
+                                                                string photo = user.ProfilePicture == string.Empty ? "/images/user.png" : user.ProfilePicture;
+                                                            }
+                                                            <MudAvatar Size="Size.Medium" Image="@photo" />
+                                                        </CardHeaderAvatar>
+                                                        <CardHeaderContent>
+                                                            @{
+                                                                string fullName = string.Concat(@user.FirstName, ' ', @user.LastName);
+                                                            }
+                                                            <MudStack Row="true">
+                                                                <MudText Typo="Typo.body1" Align="Align.Start"><b>@fullName</b></MudText>
+                                                                @if (@user.IsONGVerified)
+                                                                {
+                                                                    <MudIcon Icon="@Icons.Material.Filled.Verified" Color="Color.Info" Title="Verified" />
+
+                                                                }
+                                                            </MudStack>
+                                                            <MudText Typo="Typo.caption">@publication.CreatedDate</MudText>
+                                                        </CardHeaderContent>
+                                                    </MudCardHeader>
+                                                    <MudCardContent Class="mt-0">
+                                                        @if (publication.Images.Count > 1)
+                                                        {
+                                                            <MudCarousel Class="mud-width-full" Style="height:15rem;"
+                                                         ShowArrows="true"
+                                                         ShowBullets="false"
+                                                         EnableSwipeGesture="true"
+                                                         AutoCycle="false"
+                                                         TData="object">
+                                                                @foreach (var image in publication.Images)
+                                                                {
+                                                                    <MudCarouselItem Transition="Transition.Slide">
+                                                                        <MudImage Fluid="true"
+                                                              Src="@image.FileContent"
+                                                              ObjectFit="ObjectFit.None"
+                                                              Height="250" />
+                                                                    </MudCarouselItem>
+                                                                }
+                                                            </MudCarousel>
+                                                        }
+                                                        else if (publication.Images.Count == 1)
+                                                        {
+                                                            <MudImage Class="mud-width-full"
+                                                      Src="@publication.Images.FirstOrDefault().FileContent"
+                                                      Fluid="true"
+                                                      ObjectFit="ObjectFit.None"
+                                                      Height="250" />
+                                                        }
+                                                        <MudText Typo="Typo.body2">@publication.Description</MudText>
+                                                    </MudCardContent>
+                                                    <MudCardActions>
+                                                        <MudPaper Class="d-flex flex-column flex-grow-1 gap-0" Elevation="0">
+                                                            <MudPaper Class="pa-0" Elevation="0">
+                                                                <MudStack Row="true">
+                                                                    <MudText Class="ml-1 mr-n3 pa-0" Typo="Typo.body1">@publication.Like.Count</MudText>
+                                                                    <MudIconButton Class="pa-0 ma-0"
+                                                                       Icon="@Icons.Material.Filled.Favorite"
+                                                                       OnClick="@((e) => Like(publication.Id))"
+                                                                       DisableRipple="true"
+                                                                       Color="@((publication.Like.Liked)  ? Color.Error : Color.Default)" />
+                                                                </MudStack>
+                                                            </MudPaper>
+                                                            <MudPaper Class="pa-0" Elevation="0">
+                                                                <MudStack Row="true">
+                                                                    <MudTextField Class="mt-n4" @bind-Value="NewCommentText" DisableUnderLine="true" Placeholder="Agrega un comentario" />
+                                                                    <MudIconButton Class="pa-0 mt-1"
+                                                                       Icon="@Icons.Material.Filled.Send"
+                                                                       OnClick="@((e) => AddComment(publication.Id))"
+                                                                       Color="Color.Info"
+                                                                       DisableRipple="true" />
+                                                                </MudStack>
+                                                            </MudPaper>
+                                                            <MudPaper Class="pa-0" Elevation="0">
+                                                                @if (publication.Comments.Count > 0)
+                                                                {
+                                                                    @foreach (var comment in publication.Comments)
+                                                                    {
+                                                                        <MudStack Row="true" Class="mt-2">
+                                                                            <MudImage Src="@comment.UserProfilePicture"
+                                                                  Fluid="true"
+                                                                  Height="25"
+                                                                  Width="25"
+                                                                  Alt="User Comment"
+                                                                  Class="rounded-circle" />
+                                                                            <MudText Typo="Typo.subtitle2">@comment.UserName</MudText>
+                                                                        </MudStack>
+
+                                                                        <MudText Class="ml-10" Typo="Typo.body1">@comment.Message</MudText>
+                                                                    }
+                                                                }
+                                                            </MudPaper>
+                                                        </MudPaper>
+                                                    </MudCardActions>
+                                                </MudCard>
+                                            }
+                                        }
+                                    </MudItem>
+                                </MudTabPanel>
+                            </MudTabs>
+                        </MudHidden>
+                    </MudGrid>
+                </div>
+            </MudGrid>
+        </MudMainContent>
+    </MudLayout>
+}
+
+@code {
+    UserResponseDTO user = new UserResponseDTO();
+    private List<EventResponseDTO> events = new List<EventResponseDTO>();
+    bool success;
+    string avatarLetter = string.Empty;
+    string portraitUrl = "images/portrait/portrait_1.png";
+    bool publicationResponse = true;
+    bool eventResponse = true;
+    public string NewCommentText = string.Empty;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id != 0)
+        {
+            var result = await UserService.GetUserInfo(Id);
+
+            if (result.Success) user = result.Data;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        eventResponse = await EventService.GetEventByUserId(Id);
+        EventService.EventsChanged += StateHasChanged;
+
+        user = UserService.UserDTO;
+        switch (user.UserPortraitId)
+        {
+            case 1:
+                portraitUrl = "images/portrait/portrait_1.png";
+                break;
+            case 2:
+                portraitUrl = "images/portrait/portrait_2.png";
+                break;
+            case 3:
+                portraitUrl = "images/portrait/portrait_3.png";
+                break;
+            case 4:
+                portraitUrl = "images/portrait/portrait_4.png";
+                break;
+            case 5:
+                portraitUrl = "images/portrait/portrait_5.png";
+                break;
+            case 6:
+                portraitUrl = "images/portrait/portrait_6.png";
+                break;
+            case 7:
+                portraitUrl = "images/portrait/portrait_7.png";
+                break;
+            case 8:
+                portraitUrl = "images/portrait/portrait_8.png";
+                break;
+            case 9:
+                portraitUrl = "images/portrait/portrait_9.png";
+                break;
+            case 10:
+                portraitUrl = "images/portrait/portrait_10.png";
+                break;
+            case 11:
+                portraitUrl = "images/portrait/portrait_11.png";
+                break;
+            case 12:
+                portraitUrl = "images/portrait/portrait_12.png";
+                break;
+            case 13:
+                portraitUrl = "images/portrait/portrait_13.png";
+                break;
+            case 14:
+                portraitUrl = "images/portrait/portrait_14.png";
+                break;
+            case 15:
+                portraitUrl = "images/portrait/portrait_15.png";
+                break;
+            case 16:
+                portraitUrl = "images/portrait/portrait_16.png";
+                break;
+            case 17:
+                portraitUrl = "images/portrait/portrait_17.png";
+                break;
+            case 18:
+                portraitUrl = "images/portrait/portrait_18.png";
+                break;
+            default:
+                portraitUrl = "images/portrait/portrait_1.png";
+                break;
+        }
+
+        avatarLetter = string.Concat(user.FirstName.FirstOrDefault(), user.LastName.FirstOrDefault());
+
+        UserService.OnChange += StateHasChanged;
+
+        publicationResponse = await PublicationService.GetPublicationsByUser(Id);
+    }
+
+    async Task Like(int publicationId)
+    {
+        var likeRes = (await LikeService.CheckLike(publicationId)).Data;
+        await InvokeAsync(() => { StateHasChanged(); });
+    }
+
+    public async Task AddComment(int publicationId)
+    {
+        if (!string.IsNullOrWhiteSpace(NewCommentText))
+        {
+            var response = (await CommentService.AddComment(publicationId, NewCommentText));
+            await InvokeAsync(() => { StateHasChanged(); });
+        }
+        NewCommentText = string.Empty;
+    }
+
+    DialogOptions disableBackdropClick = new DialogOptions() { DisableBackdropClick = true };
+    async Task ReportEvent(EventResponseDTO eventToReport)
+    {
+        var parameters = new DialogParameters { ["eventToReport"] = eventToReport };
+        var dialog = DialogService.Show<ReportEventDialog>("Report Event", parameters, disableBackdropClick);
+        var result = await dialog.Result;
+
+        await InvokeAsync(() => { StateHasChanged(); });
+        if (!result.Cancelled)
+        {
+        }
+    }
+
+    public void Dispose()
+    {
+        UserService.OnChange -= StateHasChanged;
+        EventService.EventsChanged -= StateHasChanged;
+        PublicationService.PublicationsChanged -= StateHasChanged;
+    }
+}

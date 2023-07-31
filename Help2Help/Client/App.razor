@@ -1,0 +1,35 @@
+﻿<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(CustomMainLayout)">
+                <Authorizing>
+                    <body>
+                    <div class="boxes">
+                        <div class="box"></div>
+                        <div class="box"></div>
+                        <div class="box"></div>
+                        <div class="box"></div>
+                        <div class="box"></div>
+                        <div class="box"></div>
+                        <div class="box"></div>
+                        <div class="box"></div>
+                    </div>
+                    </body>
+                </Authorizing>
+                <NotAuthorized>
+                    @*<h3>You're not allowed to see this page</h3>
+                        <h5>Please <a href="login">Login</a> or <a href="register">Register</a> for a new account.</h5>*@
+                    <_404NotFound></_404NotFound>
+                </NotAuthorized>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>Not found</PageTitle>
+            <LayoutView Layout="@typeof(CustomMainLayout)">
+                @*<p role="alert">Sorry, there's nothing at this address.</p>*@
+                <_404NotFound></_404NotFound>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
