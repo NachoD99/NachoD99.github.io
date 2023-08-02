@@ -1,0 +1,150 @@
+﻿@page "/helpustohelp"
+
+<style>
+    body {
+        min-height: 100vh;
+    }
+</style>
+
+<MudLayout>
+    <CustomNavMenu></CustomNavMenu>
+
+    <MudMainContent>
+        <!--VISTA MOBILE-->
+        <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+            <MudPaper Class="px-8 pt-4" Elevation="0">
+                <h1 style="font-family: 'Inter Tight', sans-serif; font-weight: 600; font-size: 20px;text-align: center;">
+                    <span style="color: black;">Ayudanos a ayudar</span>
+                </h1>
+            </MudPaper>
+            <MudPaper Class="mx-auto" Elevation="0" Width="80%">
+                <MudStack Class="mx-auto" Justify="Justify.Center" AlignItems="AlignItems.Center">
+                    <MudPaper Elevation="0">
+                        <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Dark">
+                            Con tu granito de arena, podemos seguir ayudando a que muchas ONGs y/o personas puedan visibilizar
+                            y dar a conocer sus necesidades con fines sociales y/o ambientales.
+                            "LA VERDADERA FELICIDAD CONSISTE EN HACER FELICES A LOS DEMÁS"
+                        </MudText>
+                    </MudPaper>
+                    <MudPaper Elevation="0" Class="mx-auto justify-center object-center">
+                        <MudImage Src="../images/AyudanosAAyudar.png"
+                                  Alt="Help2Help"
+                                  Style="height:40vh"
+                                  ObjectFit="ObjectFit.Cover"
+                                  ObjectPosition="ObjectPosition.Center"
+                                  Class="mx-auto" />
+                    </MudPaper>
+                </MudStack>
+            </MudPaper>
+
+            <MudPaper Class="px-8 pt-4" Elevation="0">
+                <h1 style="font-family: 'Inter Tight', sans-serif; font-weight: 600; font-size: 20px;text-align: center;">
+                    <span style="color: black;">Dos formas de colaborar</span>
+                </h1>
+            </MudPaper>
+            <MudPaper Class="mx-auto pa-2" Elevation="0">
+
+                <MudStack Spacing="2" Class="gap-4" Justify="Justify.Center" AlignItems="AlignItems.Center">
+
+                    <MudPaper Elevation="2" Class="pa-2" Outlined="true" Width="100%">
+                        <MudText Typo="Typo.subtitle2" Align="Align.Center">LINK DE PAGO</MudText>
+                        <MudText Typo="Typo.body1" Align="Align.Center"> Aporta tu ayuda mes a mes</MudText>
+                        <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
+                            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Warning">
+                                <MudButton Target="_blank" Href="https://mpago.la/1YeHMYh">$500 </MudButton>
+                                <MudButton Target="_blank" Href="https://mpago.la/1YeHMYh">$1000</MudButton>
+                                <MudButton Target="_blank" Href="https://mpago.la/1YeHMYh">$1500</MudButton>
+                            </MudButtonGroup>
+                            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Warning">
+                                <MudButton Href="https://mpago.la/1YeHMYh" Target="_blank" Variant="Variant.Outlined">$2000</MudButton>
+                                <MudButton Href="https://mpago.la/1YeHMYh" Target="_blank" Variant="Variant.Outlined">$2500</MudButton>
+                                <MudButton Href="https://mpago.la/1YeHMYh" Target="_blank" Variant="Variant.Outlined">$3000</MudButton>
+                            </MudButtonGroup>
+                        </MudStack>
+                    </MudPaper>
+
+                    <MudPaper Elevation="2" Outlined="true" Class="pa-2" Width="100%">
+                        <MudText Typo="Typo.subtitle2" Align="Align.Center">TRANSFERENCIA BANCARIA</MudText>
+                        <MudText Typo="Typo.subtitle1" Align="Align.Center">CBU</MudText>
+                        <MudText Typo="Typo.body2" Align="Align.Center">000000000000000000</MudText>
+                        <MudText Typo="Typo.subtitle2" Align="Align.Center">ALIAS: </MudText>
+                        <MudText Typo="Typo.body2" Align="Align.Center">help.to.help </MudText>
+                        <MudText Typo="Typo.subtitle1" Align="Align.Center">CUIT:</MudText>
+                        <MudText Typo="Typo.body2" Align="Align.Center">00-00000000-0 </MudText>
+                    </MudPaper>
+                </MudStack>
+            </MudPaper>
+        </MudHidden>
+
+        <!--VISTA WEB-->
+        <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+            <MudPaper Class="px-8 pt-4" Elevation="0">
+                <h1 style="font-family: 'Inter Tight', sans-serif; font-weight: 600; font-size: 48px;text-align: center;">
+                    <span style="color: black;">Ayudanos a ayudar</span>
+                </h1>
+            </MudPaper>
+            <MudPaper Class="mx-auto" Elevation="0" Width="80%">
+                <MudStack Row="true" Class="mx-auto" Spacing="4" Justify="Justify.Center" AlignItems="AlignItems.Center">
+                    <MudPaper Elevation="0">
+                        <MudText Typo="Typo.h6" Align="Align.Center" Color="Color.Dark">
+                            Con tu granito de arena, podemos seguir ayudando a que muchas ONGs y/o personas puedan visibilizar
+                            y dar a conocer sus necesidades con fines sociales y/o ambientales.
+                            "LA VERDADERA FELICIDAD CONSISTE EN HACER FELICES A LOS DEMÁS"
+                        </MudText>
+                    </MudPaper>
+                    <MudPaper Elevation="0" Class="mx-auto justify-center object-center">
+                        <MudImage Src="../images/AyudanosAAyudar.png"
+                                  Alt="Help2Help"
+                                  Style="height:70vh"
+                                  ObjectFit="ObjectFit.Cover"
+                                  ObjectPosition="ObjectPosition.Center"
+                                  Class="mx-auto pa-4" />
+                    </MudPaper>
+                </MudStack>
+            </MudPaper>
+            <MudPaper Class="px-8 pt-4" Elevation="0">
+                <h1 style="font-family: 'Inter Tight', sans-serif; font-weight: 600; font-size: 48px;text-align: center;">
+                    <span style="color: black;">Dos formas de colaborar</span>
+                </h1>
+            </MudPaper>
+            <MudPaper Class="mx-auto pa-2" Elevation="0" Height="40vh">
+
+                <MudStack Row="true" Spacing="2" Justify="Justify.Center" AlignItems="AlignItems.Center" Style=" Height: 40vh">
+
+                    <MudPaper Height="32vh" Class="pa-2" Outlined="true" Width="30vw" Elevation="2">
+                        <MudText Typo="Typo.subtitle2" Align="Align.Center">LINK DE PAGO</MudText>
+                        <MudText Typo="Typo.body1" Align="Align.Center"> Aporta tu ayuda mes a mes</MudText>
+                        <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
+                            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Warning">
+                                <MudButton Target="_blank" Href="https://mpago.la/1YeHMYh">$500 </MudButton>
+                                <MudButton Target="_blank" Href="https://mpago.la/1YeHMYh">$1000</MudButton>
+                                <MudButton Target="_blank" Href="https://mpago.la/1YeHMYh">$1500</MudButton>
+                            </MudButtonGroup>
+                            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Warning">
+                                <MudButton Target="_blank" Href="https://mpago.la/1YeHMYh" Variant="Variant.Outlined">$2000</MudButton>
+                                <MudButton Target="_blank" Href="https://mpago.la/1YeHMYh" Variant="Variant.Outlined">$2500</MudButton>
+                                <MudButton Target="_blank" Href="https://mpago.la/1YeHMYh" Variant="Variant.Outlined">$3000</MudButton>
+                            </MudButtonGroup>
+                        </MudStack>
+                    </MudPaper>
+
+                    <MudPaper Elevation="2" Class="pa-2" Outlined="true" Height="32vh" Width="30vw">
+                        <MudText Typo="Typo.subtitle2" Align="Align.Center">TRANSFERENCIA BANCARIA</MudText>
+                        <MudText Typo="Typo.subtitle1" Align="Align.Center">CBU</MudText>
+                        <MudText Typo="Typo.body2" Align="Align.Center">000000000000000000</MudText>
+                        <MudText Typo="Typo.subtitle2" Align="Align.Center">ALIAS: </MudText>
+                        <MudText Typo="Typo.body2" Align="Align.Center">help.to.help </MudText>
+                        <MudText Typo="Typo.subtitle1" Align="Align.Center">CUIT:</MudText>
+                        <MudText Typo="Typo.body2" Align="Align.Center">00-00000000-0 </MudText>
+                    </MudPaper>
+
+                </MudStack>
+            </MudPaper>
+        </MudHidden>
+        @*<CustomFooter></CustomFooter>*@
+    </MudMainContent>
+</MudLayout>
+
+@code {
+
+}

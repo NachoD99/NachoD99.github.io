@@ -1,0 +1,301 @@
+﻿@page "/event"
+@using Microsoft.AspNetCore.WebUtilities
+@using MudBlazor.Services
+@inject IEventService EventService
+@inject IMapService MapService
+@inject IJSRuntime JSRuntime
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+
+<style>
+    body {
+        min-height: 100vh;
+    }
+</style>
+<CustomNavMenu></CustomNavMenu>
+<MudMainContent>
+    <MudPaper Class="pa-2 linea" Elevation="0">
+        <h1 style="font-family: 'Inter Tight', sans-serif; font-weight: 600; font-size: 48px;text-align: center;">
+            <span style="color: black;">Crear</span>
+            <span Style="@($"color:{Colors.LightGreen.Accent4}")">Evento</span>
+        </h1>
+    </MudPaper>
+    <EditForm Model="@model" OnValidSubmit="OnCreateEvent">
+        <DataAnnotationsValidator />
+        <MudGrid Class="mt-2 ml-0 pl-0" Style="width:99%;">
+            <MudItem xs="12" sm="7" Class="mr-0">
+                <MudCard Elevation="0">
+                    <MudCardContent>
+                        <MudTextField Label="Título" @bind-Value="model.Title" />
+                        <ValidationMessage For="@(() => model.Title)" />
+                        <MudTextField Label="Descripción" Lines="5" Class="mt-3" @bind-Value="model.Description" />
+                        <ValidationMessage For="@(() => model.Description)" />
+                        <MudStack Row="true" Spacing="0">
+                            <MudPaper Class="pa-3" Elevation="0" Style="width:50%;">
+                                <MudDatePicker Class="mt-3" Label="Inicio" @bind-Date="startDate" />
+                            </MudPaper>
+                            <MudPaper Class="pa-3" Elevation="0" Style="width:50%;">
+                                <MudDatePicker Class="mt-3" Label="Fin" @bind-Date="endDate" />
+                            </MudPaper>
+                        </MudStack>
+                        <MudStack Row="true" Spacing="0">
+                            <MudPaper Class="pa-3" Elevation="0" Style="width:50%;">
+                                <MudTextField Label="Calle" Class="mt-3" @bind-Value="model.Street" />
+                                <ValidationMessage For="@(() => model.Street)" />
+                            </MudPaper>
+                            <MudPaper Class="pa-3" Elevation="0" Style="width:50%;">
+                                <MudTextField Label="Número" Class="mt-3" @bind-Value="model.StreetNumber" MaxLength="5" />
+                                <ValidationMessage For="@(() => model.StreetNumber)" />
+                            </MudPaper>
+                        </MudStack>
+                        <MudStack Row="true" Spacing="0">
+                            <MudPaper Class="pa-3" Elevation="0" Style="width:40%;">
+                                <MudAutocomplete T="string" MaxItems="24" Label="Provincia" @bind-Value="model.Province" SearchFunc="@ProvinceSearch"
+                                                 ResetValueOnEmptyText="@resetValueOnEmptyText4" />
+                                <ValidationMessage For="@(() => model.Province)" />
+                            </MudPaper>
+                            <MudPaper Class="pa-3" Elevation="0" Style="width:40%;">
+                                <MudAutocomplete MaxItems="2000" Disabled="cityDisabled" T="string" Label="Ciudad" @bind-Value="model.City" SearchFunc="@CitySearch"
+                                                 ResetValueOnEmptyText="@resetValueOnEmptyText5" />
+                                <ValidationMessage For="@(() => model.City)" />
+                            </MudPaper>
+                            <MudPaper Class="pa-3" Elevation="0" Style="width:20%;">
+                                <MudTextField Label="Código Postal" @bind-Value="model.ZipCode" Mask="@(new PatternMask("0000"))" />
+                                <ValidationMessage For="@(() => model.ZipCode)" />
+                            </MudPaper>
+                        </MudStack>
+
+                        <MudStack Row="true" Spacing="0">
+                            <MudPaper Class="pa-3" Elevation="0" Style="width:25%;">
+                                <MudButton ButtonType="ButtonType.Button"
+                                           Variant="Variant.Filled"
+                                           StartIcon="@Icons.Material.Filled.Map"
+                                           Color="Color.Tertiary"
+                                           OnClick="SearchPlace"
+                                           Class="mr-auto mt-3">Ver en mapa</MudButton>
+                            </MudPaper>
+                            <MudPaper Class="pa-3" Elevation="0">
+                                <MudAlert Severity="Severity.Info">Para poder continuar, presione el botón "Ver en mapa"</MudAlert>
+                            </MudPaper>
+                        </MudStack>
+
+                        <!-- Vista Mobile -->
+                        @*<MudHidden Breakpoint="Breakpoint.MdAndDown" Invert="true">
+                            <MudPaper Class="pa-4 mr-0" Elevation="0">
+                                <div id="map3" style="height:80%;width:85%;position:absolute;"></div>
+                            </MudPaper>
+                        </MudHidden>*@
+
+                        @if (hasCoordinates)
+                        {
+                            <MudAutocomplete T="string" Label="Rama" @bind-Value="model.FatherCategory" SearchFunc="@FatherCategorySearch"
+                                         ResetValueOnEmptyText="@resetValueOnEmptyText" />
+                            <ValidationMessage For="@(() => model.FatherCategory)" />
+                            <MudAutocomplete T="string" Label="Categoría" @bind-Value="model.MainCategory" SearchFunc="@MainCategorySearch"
+                                         ResetValueOnEmptyText="@resetValueOnEmptyText2" />
+                            <ValidationMessage For="@(() => model.MainCategory)" />
+
+                            @if (!string.IsNullOrWhiteSpace(model.MainCategory) && !(model.MainCategory == "Dinero" || model.MainCategory == "Voluntariado" ||
+                           model.MainCategory == "Residuos orgánicos" || model.MainCategory == "Útiles escolares y libros" ||
+                           model.MainCategory == "Artículos para Bebés"))
+                            {
+                                <MudAutocomplete T="string" Label="Subcategoría" @bind-Value="model.SubCategory" SearchFunc="@SubCategorySearch"
+                                         ResetValueOnEmptyText="@resetValueOnEmptyText3" />
+                            }
+                        }
+                        @if (model.MainCategory == "Dinero")
+                        {
+                            <MudStack Row="true" Spacing="0">
+                                <MudTextField Label="Link de Mercado Pago" Class="mt-3" @bind-Value="model.MercadoPagoLink" />
+                                <MudTooltip Text="¿Quieres recibir donaciones? Agrega un link de Mercado Pago para que recibas el aporte de otros usuarios directamente en tu cuenta">
+                                    <MudIconButton Class="mt-6" Icon="@Icons.Material.Filled.HelpOutline" />
+                                </MudTooltip>
+                            </MudStack>
+                        }
+                    </MudCardContent>
+                    <MudCardActions>
+                        @if (hasCoordinates)
+                        {
+                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary"
+                                   Disabled="@((string.IsNullOrWhiteSpace(@model.Title) || string.IsNullOrWhiteSpace(@model.Description)
+                            || string.IsNullOrWhiteSpace(@model.Street) ||  (@model.StreetNumber == 0) || string.IsNullOrWhiteSpace(@model.City)
+                            || (@model.ZipCode == 0) || string.IsNullOrWhiteSpace(@model.Province) || (string.IsNullOrWhiteSpace(@model.StartDate.ToShortDateString()) ||
+                            string.IsNullOrWhiteSpace(@model.EndDate.ToShortDateString()) && (@model.EndDate > @model.StartDate))||
+                            string.IsNullOrWhiteSpace(@model.FatherCategory) || string.IsNullOrWhiteSpace(@model.MainCategory)) ? true : false)" Class="ml-auto">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Creando...</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Crear</MudText>
+                                }
+                            </MudButton>
+                        }
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+            <MudItem xs="12" sm="5">
+                <MudPaper Class="pa-4 mr-0" Style="height:80%;" Elevation="0">
+                        <div id="map2" style="height:100%;width:100%;"></div>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+</MudMainContent>
+
+
+@code {
+    List<EventCategory> categories = new List<EventCategory>();
+    private List<string> fatherCategory = new List<string>();
+    private List<string> mainCategory = new List<string>();
+    private List<string> subCategory = new List<string>();
+
+    private List<string> provinces = new List<string>();
+    private List<string> cities = new List<string>();
+
+    private bool resetValueOnEmptyText = true;
+    private bool resetValueOnEmptyText2 = true;
+    private bool resetValueOnEmptyText3 = true;
+    private bool resetValueOnEmptyText4 = true;
+    private bool resetValueOnEmptyText5 = true;
+    private bool _processing = false;
+    private bool hasCoordinates = false;
+    DateTime? startDate = DateTime.Today;
+    DateTime? endDate = DateTime.Today.AddDays(30);
+    List<ProvinceResponseDTO> provincesResponse = new List<ProvinceResponseDTO>();
+    List<CityResponseDTO> citiesResponse = new List<CityResponseDTO>();
+    private bool cityDisabled = true;
+
+    public string Place { get; set; } = string.Empty;
+    private EventResponseDTO model = new EventResponseDTO();
+
+    protected override async void OnInitialized()
+    {
+        categories = await EventService.GetEventCategories();
+        foreach (var category in categories)
+        {
+            if (!fatherCategory.Contains(category.FatherCategory)) fatherCategory.Add(category.FatherCategory);
+        }
+
+        provincesResponse = await MapService.GetProvinces();
+        foreach (var province in provincesResponse)
+        {
+            if (!provinces.Contains(province.Name)) provinces.Add(province.Name);
+        }
+        provinces.Sort();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+           await JSRuntime.InvokeVoidAsync("initialize_event", null);
+        }
+    }
+
+    private async Task SearchPlace()
+    {
+        Place = model.Street + " " + model.StreetNumber + ", " + model.City + ", " + model.Province + ", Argentina";
+        await JSRuntime.InvokeVoidAsync("search_place", Place);
+        hasCoordinates = true;
+    }
+    private async Task OnCreateEvent()
+    {
+        model.StartDate = Convert.ToDateTime(startDate);
+        model.EndDate = Convert.ToDateTime(endDate);
+
+        var result = await EventService.CreateEvent(model);
+        _processing = true;
+        if (result)
+        {
+            Snackbar.Add("Evento creado con éxito", Severity.Success);
+
+            await Task.Delay(1000);
+
+            NavigationManager.NavigateTo("/event", true);
+        }
+        else
+        {
+            Snackbar.Add("Hubo un error al crear el evento. Por favor revise los datos", Severity.Error);
+        }
+        _processing = false;
+
+    }
+
+    private async Task<IEnumerable<string>> FatherCategorySearch(string value)
+    {
+        await Task.Delay(5);
+
+        if (string.IsNullOrEmpty(value))
+            return fatherCategory;
+        return fatherCategory.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> MainCategorySearch(string value)
+    {
+        await Task.Delay(5);
+        mainCategory.Clear();
+        foreach (var category in categories)
+        {
+            if (!mainCategory.Contains(category.Name) && category.FatherCategory == model.FatherCategory) mainCategory.Add(category.Name);
+        }
+        if (string.IsNullOrEmpty(value)) return mainCategory;
+
+        StateHasChanged();
+        return mainCategory.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> SubCategorySearch(string value)
+    {
+        await Task.Delay(5);
+        subCategory.Clear();
+        foreach (var category in categories)
+        {
+            if (category.SubCategory != string.Empty && !subCategory.Contains(category.SubCategory) && category.Name == model.MainCategory)
+                subCategory.Add(category.SubCategory);
+        }
+
+        if (string.IsNullOrEmpty(value)) return subCategory;
+
+        StateHasChanged();
+        return subCategory.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> ProvinceSearch(string value)
+    {
+        await Task.Delay(5);
+        cityDisabled = false;
+
+        if (string.IsNullOrEmpty(value))
+            return provinces;
+        return provinces.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> CitySearch(string value)
+    {
+        await Task.Delay(5);
+
+        cities.Clear();
+
+        if (model.Province != null && model.Province != string.Empty)
+        {
+            string provinceId = provincesResponse.FirstOrDefault(p => p.Name == model.Province)?.ProvinceId ?? string.Empty;
+
+            if (provinceId != string.Empty) citiesResponse = await MapService.GetCities(provinceId);
+
+            foreach (var city in citiesResponse)
+            {
+                if (!cities.Contains(city.Name)) cities.Add(city.Name);
+            }
+
+            cities.Sort();
+        }
+
+        if (string.IsNullOrEmpty(value))
+            return cities;
+        StateHasChanged();
+        return cities.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+}

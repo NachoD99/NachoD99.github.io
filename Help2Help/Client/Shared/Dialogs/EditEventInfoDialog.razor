@@ -1,0 +1,248 @@
+﻿@inject ISnackbar Snackbar
+@inject IEventService EventService
+@inject IMapService MapService
+@implements IDisposable
+
+<MudDialog Style="width:90vw" DisableSidePadding="true">
+    <DialogContent>
+        <MudContainer Style="max-height:60vh; overflow-y: scroll">
+            <MudTextField Value="@eventToEdit.Title" ValueChanged="@( (string s) => ChangeTitle(s) )" Label="Título" ReadOnly="false" />
+            <MudTextField T="string" Value="@eventToEdit.Description" ValueChanged="@( (string s) => ChangeDescription(s) )" Label="Descripción" ReadOnly="false" Lines="5" />
+            <MudAutocomplete T="string" Label="Rama" Value="eventToEdit.FatherCategory" ValueChanged="@( (string s) => ChangeFatherCategory(s) )" SearchFunc="@FatherCategorySearch"
+                             ResetValueOnEmptyText="@resetValueOnEmptyText" />
+            <MudAutocomplete T="string" Label="Categoría" Value="eventToEdit.MainCategory" ValueChanged="@( (string s) => ChangeMainCategory(s) )" SearchFunc="@MainCategorySearch"
+                             ResetValueOnEmptyText="@resetValueOnEmptyText2" />
+            <MudAutocomplete T="string" Label="Subcategoría" Value="eventToEdit.SubCategory" ValueChanged="@( (string s) => ChangeSubcategory(s) )" SearchFunc="@SubCategorySearch"
+                             ResetValueOnEmptyText="@resetValueOnEmptyText3" />
+            <MudStack Row="true" Spacing="1">
+                <MudTextField Value="@eventToEdit.Street" ValueChanged="@( (string s) => ChangeStreet(s) )" Label="Calle" ReadOnly="false" />
+                <MudTextField Value="@eventToEdit.StreetNumber" MaxLength="5" ValueChanged="@( (int s) => ChangeStreetNumber(s) )" Label="Número" ReadOnly="false" />
+            </MudStack>
+            <MudStack Row="true" Spacing="1">
+                <MudPaper Class="pa-3" Elevation="0" Style="width:40%;">
+                    <MudAutocomplete T="string" MaxItems="24" Label="Provincia" ValueChanged="@( (string s) => ChangeProvince(s) )" Value="eventToEdit.Province" SearchFunc="@ProvinceSearch"
+                                     ResetValueOnEmptyText="@resetValueOnEmptyText4" />
+                </MudPaper>
+                <MudPaper Class="pa-3" Elevation="0" Style="width:40%;">
+                    <MudAutocomplete MaxItems="2000" T="string" ValueChanged="@( (string s) => ChangeCity(s) )" Label="Ciudad" Value="eventToEdit.City" SearchFunc="@CitySearch"
+                                     ResetValueOnEmptyText="@resetValueOnEmptyText5" />
+                </MudPaper>
+                <MudPaper Class="pa-3" Elevation="0" Style="width:20%;">
+                    <MudTextField Value="@eventToEdit.ZipCode" Mask="@(new PatternMask("0000"))" ValueChanged="@( (int s) => ChangeZipCode(s) )" Label="Código Postal" ReadOnly="false" />
+                </MudPaper>
+            </MudStack>
+            <MudStack Row="true" Spacing="1">
+                <MudPaper Class="pa-3" Elevation="0" Style="width:50%;">
+                    <MudDatePicker Disabled="true" Class="mt-3" Label="Inicio" @bind-Date="@startDate" />
+                </MudPaper>
+                <MudPaper Class="pa-3" Elevation="0" Style="width:50%;">
+                    <MudDatePicker Disabled="true" Class="mt-3" Label="Fin" @bind-Date="@endDate" />
+                </MudPaper>
+            </MudStack>
+            @if (eventToEdit.MainCategory == "Dinero")
+            {
+                <MudStack Row="true" Spacing="0">
+                    <MudTextField ValueChanged="@( (string s) => ChangeMPLink(s) )" Label="Link de Mercado Pago" Class="mt-3" Value="eventToEdit.MercadoPagoLink" />
+                    <MudTooltip Text="¿Quieres recibir donaciones? Agrega un link de Mercado Pago para que recibas el aporte de otros usuarios directamente en tu cuenta">
+                        <MudIconButton Class="mt-6" Icon="@Icons.Material.Filled.HelpOutline" />
+                    </MudTooltip>
+                </MudStack>
+            }
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Class="mr-auto">Cancelar</MudButton>
+        <MudButton Color="Color.Error" OnClick="DeleteEvent">Eliminar</MudButton>
+        <MudButton Color="Color.Info" OnClick="EditEvent">
+            @if (_processing)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">Editando...</MudText>
+            }
+            else
+            {
+                <MudText>Editar</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    private bool _processing = false;
+
+    [Parameter] public EventResponseDTO eventToEdit { get; set; } = new EventResponseDTO();
+
+    List<EventCategory> categories = new List<EventCategory>();
+    private List<string> fatherCategory = new List<string>();
+    private List<string> mainCategory = new List<string>();
+    private List<string> subCategory = new List<string>();
+
+    private List<string> provinces = new List<string>();
+    private List<string> cities = new List<string>();
+
+    private bool resetValueOnEmptyText = true;
+    private bool resetValueOnEmptyText2 = true;
+    private bool resetValueOnEmptyText3 = true;
+    private bool resetValueOnEmptyText4 = true;
+    private bool resetValueOnEmptyText5 = true;
+
+    DateTime? startDate;
+    DateTime? endDate;
+
+    List<ProvinceResponseDTO> provincesResponse = new List<ProvinceResponseDTO>();
+    List<CityResponseDTO> citiesResponse = new List<CityResponseDTO>();
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void ChangeTitle(string Title) => eventToEdit.Title = Title;
+    private void ChangeDescription(string description) => eventToEdit.Description = description;
+    private void ChangeFatherCategory(string fatherCategory) => eventToEdit.FatherCategory = fatherCategory;
+    private void ChangeMainCategory(string mainCategory) => eventToEdit.MainCategory = mainCategory;
+    private void ChangeSubcategory(string subCategory) => eventToEdit.SubCategory = subCategory;
+    private void ChangeStreet(string street) => eventToEdit.Street = street;
+    private void ChangeStreetNumber(int streetNumber) => eventToEdit.StreetNumber = streetNumber;
+    private void ChangeCity(string city) => eventToEdit.City = city;
+    private void ChangeProvince(string province) => eventToEdit.Province = province;
+    private void ChangeZipCode(int zipCode) => eventToEdit.ZipCode = zipCode;
+    private void ChangeMPLink(string mpLink) => eventToEdit.MercadoPagoLink = mpLink;
+
+    private async Task EditEvent()
+    {
+        _processing = true;
+        var result = await EventService.EditEventInfo(eventToEdit);
+
+        if (result.Success)
+        {
+            Snackbar.Add(result.Data, Severity.Success);
+            await InvokeAsync(() => { StateHasChanged(); });
+        }
+        else
+        {
+            Snackbar.Add(result.Data, Severity.Error);
+        }
+        _processing = false;
+        MudDialog.Close(DialogResult.Ok(eventToEdit.Id));
+
+    }
+
+    protected override async void OnInitialized()
+    {
+        startDate = eventToEdit.StartDate;
+        endDate = eventToEdit.EndDate;
+
+        categories = await EventService.GetEventCategories();
+
+        foreach (var category in categories)
+        {
+            if (!fatherCategory.Contains(category.FatherCategory)) fatherCategory.Add(category.FatherCategory);
+        }
+
+        provincesResponse = await MapService.GetProvinces();
+        foreach (var province in provincesResponse)
+        {
+            if (!provinces.Contains(province.Name)) provinces.Add(province.Name);
+        }
+        provinces.Sort();
+
+        EventService.EventsChanged += StateHasChanged;
+    }
+
+    private async Task DeleteEvent()
+    {
+        var result = await EventService.DeleteEvent(eventToEdit);
+
+        if (result.Success)
+        {
+            Snackbar.Add(result.Data, Severity.Success);
+            await InvokeAsync(() => { StateHasChanged(); });
+        }
+        else
+        {
+            Snackbar.Add(result.Data, Severity.Error);
+        }
+        MudDialog.Close(DialogResult.Ok(eventToEdit.Id));
+
+    }
+
+    private async Task<IEnumerable<string>> FatherCategorySearch(string value)
+    {
+        await Task.Delay(5);
+
+        if (string.IsNullOrEmpty(value))
+            return fatherCategory;
+        return fatherCategory.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> MainCategorySearch(string value)
+    {
+        await Task.Delay(5);
+        mainCategory.Clear();
+        foreach (var category in categories)
+        {
+            if (!mainCategory.Contains(category.Name) && category.FatherCategory == eventToEdit.FatherCategory) mainCategory.Add(category.Name);
+        }
+        if (string.IsNullOrEmpty(value)) return mainCategory;
+
+        StateHasChanged();
+        return mainCategory.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> SubCategorySearch(string value)
+    {
+        await Task.Delay(5);
+        subCategory.Clear();
+        foreach (var category in categories)
+        {
+            if (category.SubCategory != string.Empty && !subCategory.Contains(category.SubCategory) && category.Name == eventToEdit.MainCategory)
+                subCategory.Add(category.SubCategory);
+        }
+
+        if (string.IsNullOrEmpty(value)) return subCategory;
+
+        StateHasChanged();
+        return subCategory.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> ProvinceSearch(string value)
+    {
+        await Task.Delay(5);
+
+        if (string.IsNullOrEmpty(value))
+            return provinces;
+        return provinces.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<string>> CitySearch(string value)
+    {
+        await Task.Delay(5);
+
+        cities.Clear();
+
+        if (eventToEdit.Province != null && eventToEdit.Province != string.Empty)
+        {
+            string provinceId = provincesResponse.FirstOrDefault(p => p.Name == eventToEdit.Province)?.ProvinceId ?? string.Empty;
+
+            if (provinceId != string.Empty) citiesResponse = await MapService.GetCities(provinceId);
+
+            foreach (var city in citiesResponse)
+            {
+                if (!cities.Contains(city.Name)) cities.Add(city.Name);
+            }
+
+            cities.Sort();
+        }
+
+        if (string.IsNullOrEmpty(value))
+            return cities;
+        StateHasChanged();
+        return cities.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    public void Dispose()
+    {
+        EventService.EventsChanged -= StateHasChanged;
+    }
+}

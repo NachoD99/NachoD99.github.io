@@ -1,0 +1,510 @@
+﻿@page "/analytics"
+@inject IAnalyticService AnalyticService
+
+<MudLayout>
+    <CustomNavMenu></CustomNavMenu>
+    <MudMainContent>
+        <MudPaper Class="pa-4 linea" Elevation="0">
+            <h1 style="font-family: 'Inter Tight', sans-serif; font-weight: 600; font-size: 38px; text-align: center;">
+                <span style="color: black;">Top 5 eventos de la semana</span>
+            </h1>
+        </MudPaper>
+        <MudPaper Class="d-flex flex-wrap justify-center gap-4 mt-5 pb-10" Elevation="0" >
+            <MudPaper Class="d-flex flex-wrap justify-center flex-grow-1 gap-4 mx-4" Elevation="0">
+                <MudStack Spacing="5" Class="d-flex flex-wrap justify-center mt-8 mb-8 mx-4" Row="true">
+                    @if (topFiveCategories.Count() == 0)
+                    {
+                        <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="150px" Height="150px" />
+                        <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="150px" Height="150px" />
+                        <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="150px" Height="150px" />
+                        <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="150px" Height="150px" />
+                        <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="150px" Height="150px" />
+                    }
+                    else
+                    {
+                        @foreach (var item in topFiveCategories)
+                        {
+                            <MudPaper Class="d-flex flex-wrap justify-center flex-grow-1 pa-3" Width="150px" Elevation="5">
+                                <MudStack >
+                                    <MudImage Src="@item.Value" Height="50" Width="50" Class="rounded-circle d-flex justify-center mt-3 mb-2" />
+                                    <MudText Typo="Typo.subtitle2" Class="mt-5" Align="Align.Center">@item.Key</MudText>
+                                </MudStack>
+                            </MudPaper>
+                        }
+                    }
+                </MudStack>
+            </MudPaper>
+        </MudPaper>
+        <MudPaper Class="pa-4 linea" Elevation="0">
+            <h1 style="font-family: 'Inter Tight', sans-serif; font-weight: 600; font-size: 38px; text-align: center;">
+                <span style="color: black;">Distribución de eventos consultados por usuario</span>
+            </h1>
+        </MudPaper>
+        <MudPaper Class="d-flex flex-wrap justify-center gap-4 mt-5 pb-10" Elevation="0" >
+            <MudPaper Class="pa-4 mx-4" Width="400px" Elevation="6">
+                <MudText Typo="Typo.h6" Align="Align.Center">Ambiental</MudText>
+
+                @if (dataAmbiental.Length == 0)
+                {
+                    <MudPaper Class="d-flex justify-center flex-grow-1 gap-4" Elevation="0">
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Class="mb-3 mt-3" Width="250px" Height="250px" />
+                    </MudPaper>
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="350px" Height="200px" />
+                }
+                else
+                {
+                    <MudChart ChartType="ChartType.Donut"
+                          InputData="@dataAmbiental"
+                          ChartOptions="@chartOptions"
+                          @bind-SelectedIndex="Index"
+                          InputLabels="@labelsAmbiental" />
+                }
+            </MudPaper>
+            <MudPaper Class="pa-4 mx-4" Width="400px" Elevation="6">
+                <MudText Typo="Typo.h6" Align="Align.Center">Social</MudText>
+                @if (dataSocial.Length == 0)
+                {
+                    <MudPaper Class="d-flex justify-center flex-grow-1 gap-4" Elevation="0">
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Class="mb-3 mt-3" Width="250px" Height="250px" />
+                    </MudPaper>
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="350px" Height="200px" />
+                }
+                else
+                {
+                    <MudChart ChartType="ChartType.Donut"
+                          InputData="@dataSocial"
+                          ChartOptions="@chartOptions"
+                          @bind-SelectedIndex="Index"
+                          InputLabels="@labelsSocial" />
+                }
+            </MudPaper>
+            <MudPaper Class="pa-4 mx-4" Width="400px" Elevation="6">
+                <MudText Typo="Typo.h6" Align="Align.Center">Categorías Generales</MudText>
+                @if (dataDinero.Length == 0)
+                {
+                    <MudPaper Class="d-flex justify-center flex-grow-1 gap-4" Elevation="0">
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Class="mb-3 mt-3" Width="250px" Height="250px" />
+                    </MudPaper>
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="350px" Height="200px" />
+                }
+                else
+                {
+                    <MudChart ChartType="ChartType.Donut"
+                          InputData="@dataDinero"
+                          ChartOptions="@chartOptions"
+                          @bind-SelectedIndex="Index"
+                          InputLabels="@labelsDinero" />
+                }
+            </MudPaper>
+        </MudPaper>
+    </MudMainContent>
+</MudLayout>
+<CustomFooter></CustomFooter>
+
+
+@code
+{
+    private int Index = -1; //default value cannot be 0 -> first selectedindex is 0.
+
+    double[] dataAmbiental = new double[] { };
+    string[] labelsAmbiental = new string[] { };
+
+    double[] dataSocial = new double[] { };
+    string[] labelsSocial = new string[] { };
+
+    double[] dataDinero = new double[] { };
+    string[] labelsDinero = new string[] { };
+
+    Dictionary<string, double> result = new Dictionary<string, double>();
+
+    Dictionary<string, string> topFiveCategories = new Dictionary<string, string>();
+
+    ChartOptions chartOptions = new()
+        {
+            ChartPalette = new[] { Colors.Red.Darken1, Colors.Green.Lighten1, Colors.Blue.Darken1,
+    Colors.DeepOrange.Lighten1, Colors.Pink.Lighten3, Colors.Teal.Lighten2, Colors.Pink.Accent3, Colors.LightGreen.Accent3,
+    Colors.Orange.Accent3, Colors.Blue.Accent3, Colors.Yellow.Accent2, Colors.BlueGrey.Lighten3, Colors.Orange.Accent2,
+    Colors.DeepPurple.Lighten2, Colors.Amber.Lighten2, Colors.Purple.Accent2, Colors.Green.Accent3, Colors.Lime.Accent2,
+    Colors.Purple.Accent3, Colors.Teal.Default, Colors.Lime.Default, Colors.BlueGrey.Darken4}
+        };
+
+    protected override async void OnInitialized()
+    {
+        result = await AnalyticService.GetAnalyticCategoriesData();
+
+        List<double> valuesAmbiental = new List<double>();
+        List<string> namesAmbiental = new List<string>();
+
+        List<double> valuesSocial = new List<double>();
+        List<string> namesSocial = new List<string>();
+
+        List<double> valuesDinero = new List<double>();
+        List<string> namesDinero = new List<string>();
+
+        int clothescount = 0;
+        double clothessum = 0;
+
+        int foodcount = 0;
+        double foodsum = 0;
+
+        foreach (var info in result)
+        {
+            try
+            {
+                switch (info.Key)
+                {
+                    case "Cajas":
+                        valuesAmbiental.Add(info.Value);
+                        namesAmbiental.Add(info.Key);
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key, "images/mapIcons/1-PapelYCarton.png");
+                        break;
+                    case "TetraBrick":
+                        valuesAmbiental.Add(info.Value);
+                        namesAmbiental.Add("Tetra brick");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Tetra brick", "images/mapIcons/1-PapelYCarton.png");
+                        break;
+                    case "CartonCotidiano":
+                        valuesAmbiental.Add(info.Value);
+                        namesAmbiental.Add("Cartón cotidiano");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Cartón cotidiano", "images/mapIcons/1-PapelYCarton.png");
+                        break;
+                    case "JarrasYCopas":
+                        valuesAmbiental.Add(info.Value);
+                        namesAmbiental.Add("Jarras y copas");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Jarras y copas", "images/mapIcons/2-Vidrio.png");
+                        break;
+                    case "TarrosYFrascos":
+                        valuesAmbiental.Add(info.Value);
+                        namesAmbiental.Add("Tarros y frascos");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Tarros y frascos", "images/mapIcons/2-Vidrio.png");
+                        break;
+                    case "BotellasDeVidrio":
+                        valuesAmbiental.Add(info.Value);
+                        namesAmbiental.Add("Botellas de vidrio");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Botellas de vidrio", "images/mapIcons/2-Vidrio.png");
+                        break;
+                    case "Tapitas":
+                        valuesAmbiental.Add(info.Value);
+                        namesAmbiental.Add(info.Key);
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key, "images/mapIcons/3-Plásticos.png");
+                        break;
+                    case "Bolsas":
+                        valuesAmbiental.Add(info.Value);
+                        namesAmbiental.Add(info.Key);
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key, "images/mapIcons/3-Plásticos.png");
+                        break;
+                    case "Bandejas":
+                        valuesAmbiental.Add(info.Value);
+                        namesAmbiental.Add(info.Key);
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key, "images/mapIcons/3-Plásticos.png");
+                        break;
+                    case "BotellasDePlastico":
+                        valuesAmbiental.Add(info.Value);
+                        namesAmbiental.Add("Botellas de plástico");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Botellas de plástico", "images/mapIcons/3-Plásticos.png");
+                        break;
+                    case "Cobres":
+                        valuesAmbiental.Add(info.Value);
+                        namesAmbiental.Add("Cobre");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Cobre", "images/mapIcons/4-Metales.png");
+                        break;
+                    case "Aluminio":
+                        valuesAmbiental.Add(info.Value);
+                        namesAmbiental.Add(info.Key);
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key, "images/mapIcons/4-Metales.png");
+                        break;
+                    case "Hierro":
+                        valuesAmbiental.Add(info.Value);
+                        namesAmbiental.Add(info.Key);
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key, "images/mapIcons/4-Metales.png");
+                        break;
+                    case "Aceites":
+                        valuesAmbiental.Add(info.Value);
+                        namesAmbiental.Add("Aceite");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Aceite", "images/mapIcons/6-DesechosPeligrosos.png");
+                        break;
+                    case "PilasYBaterias":
+                        valuesAmbiental.Add(info.Value);
+                        namesAmbiental.Add("Pilas y baterias");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Pilas y baterias", "images/mapIcons/6-DesechosPeligrosos.png");
+                        break;
+                    case "ResiduoStecnologicos":
+                        valuesAmbiental.Add(info.Value);
+                        namesAmbiental.Add("Residuos tecnológicos");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Residuos tecnológicos", "images/mapIcons/6-DesechosPeligrosos.png");
+                        break;
+                    case "ResiduosHospitalariosInfecciosos":
+                        valuesAmbiental.Add(info.Value);
+                        namesAmbiental.Add("Residuos hospitalarios");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Residuos hospitalarios", "images/mapIcons/6-DesechosPeligrosos.png");
+                        break;
+                    case "ResiduosOrganicos":
+                        valuesAmbiental.Add(info.Value);
+                        namesAmbiental.Add("Residuos orgánicos");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Residuos orgánicos", "images/mapIcons/19-Organicos.png");
+                        break;
+                    case "LecheEnPolvo":
+                        foodcount++;
+                        foodsum = foodsum + info.Value;
+                        if (foodcount == 4)
+                        {
+                            valuesSocial.Add(foodsum);
+                            namesSocial.Add("Alimento");
+                            if (topFiveCategories.Count < 5) topFiveCategories.Add("Alimento", "images/mapIcons/7-Alimentos.png");
+                        }
+                        break;
+                    case "LecheEntera":
+                        foodcount++;
+                        foodsum = foodsum + info.Value;
+                        if (foodcount == 4)
+                        {
+                            valuesSocial.Add(foodsum);
+                            namesSocial.Add("Alimento");
+                            if (topFiveCategories.Count < 5) topFiveCategories.Add("Alimento", "images/mapIcons/7-Alimentos.png");
+                        }
+                        break;
+                    case "NoPerecederos":
+                        foodcount++;
+                        foodsum = foodsum + info.Value;
+                        if (foodcount == 4)
+                        {
+                            valuesSocial.Add(foodsum);
+                            namesSocial.Add("Alimento");
+                            if (topFiveCategories.Count < 5) topFiveCategories.Add("Alimento", "images/mapIcons/7-Alimentos.png");
+                        }
+                        break;
+                    case "Perecederos":
+                        foodcount++;
+                        foodsum = foodsum + info.Value;
+                        if (foodcount == 4)
+                        {
+                            valuesSocial.Add(foodsum);
+                            namesSocial.Add("Alimento");
+                            if (topFiveCategories.Count < 5) topFiveCategories.Add("Alimento", "images/mapIcons/7-Alimentos.png");
+                        }
+                        break;
+                    case "ArticulosParaBebes":
+                        valuesSocial.Add(info.Value);
+                        namesSocial.Add("Artículos para bebés");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Artículos para bebés", "images/mapIcons/8-Bebés.png");
+                        break;
+                    case "Adultos":
+                        clothescount++;
+                        clothessum = clothessum + info.Value;
+                        if (clothescount == 3)
+                        {
+                            valuesSocial.Add(clothessum);
+                            namesSocial.Add("Ropa");
+                            if (topFiveCategories.Count < 5) topFiveCategories.Add("Ropa", "images/mapIcons/9-Ropa.png");
+                        }
+                        break;
+                    case "Jovenes":
+                        clothescount++;
+                        clothessum = clothessum + info.Value;
+                        if (clothescount == 3)
+                        {
+                            valuesSocial.Add(clothessum);
+                            namesSocial.Add("Ropa");
+                            if (topFiveCategories.Count < 5) topFiveCategories.Add("Ropa", "images/mapIcons/9-Ropa.png");
+                        }
+                        break;
+                    case "Ninos":
+                        clothescount++;
+                        clothessum = clothessum + info.Value;
+                        if (clothescount == 3)
+                        {
+                            valuesSocial.Add(clothessum);
+                            namesSocial.Add("Ropa");
+                            if (topFiveCategories.Count < 5) topFiveCategories.Add("Ropa", "images/mapIcons/9-Ropa.png");
+                        }
+                        break;
+                    case "ColchonesYFrazadas":
+                        valuesSocial.Add(info.Value);
+                        namesSocial.Add("Colchones y frazadas");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Colchones y frazadas", "images/mapIcons/10-Hogar.png");
+                        break;
+                    case "Electrodomesticos":
+                        valuesSocial.Add(info.Value);
+                        namesSocial.Add("Electrodomésticos");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Electrodomésticos", "images/mapIcons/10-Hogar.png");
+                        break;
+                    case "HigieneYLimpieza":
+                        valuesSocial.Add(info.Value);
+                        namesSocial.Add("Higiene y limpieza");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Higiene y limpieza", "images/mapIcons/10-Hogar.png");
+                        break;
+                    case "MaterialesParaConstruccion":
+                        valuesSocial.Add(info.Value);
+                        namesSocial.Add("Materiales para construcción");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Materiales para construcción", "images/mapIcons/10-Hogar.png");
+                        break;
+                    case "Muebles":
+                        valuesSocial.Add(info.Value);
+                        namesSocial.Add(info.Key);
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key, "images/mapIcons/10-Hogar.png");
+                        break;
+                    case "Pintura":
+                        valuesSocial.Add(info.Value);
+                        namesSocial.Add(info.Key);
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key, "images/mapIcons/10-Hogar.png");
+                        break;
+                    case "Celulares":
+                        valuesSocial.Add(info.Value);
+                        namesSocial.Add(info.Key);
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key, "images/mapIcons/11-Tecnología.png");
+                        break;
+                    case "Computadoras":
+                        valuesSocial.Add(info.Value);
+                        namesSocial.Add(info.Key);
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key, "images/mapIcons/11-Tecnología.png");
+                        break;
+                    case "ArticulosDeportivos":
+                        valuesSocial.Add(info.Value);
+                        namesSocial.Add("Artículos deportivos");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Artículos deportivos", "images/mapIcons/12-Recreación.png");
+                        break;
+                    case "InstrumentosMusicales":
+                        valuesSocial.Add(info.Value);
+                        namesSocial.Add("Instrumentos musicales");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Instrumentos musicales", "images/mapIcons/12-Recreación.png");
+                        break;
+                    case "Juguetes":
+                        valuesSocial.Add(info.Value);
+                        namesSocial.Add(info.Key);
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key, "images/mapIcons/12-Recreación.png");
+                        break;
+                    case "UtilesEscolaresYLibros":
+                        valuesSocial.Add(info.Value);
+                        namesSocial.Add("Útiles escolares y libros");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Útiles escolares y libros", "images/mapIcons/13-UtilesEscolares.png");
+                        break;
+                    case "Medicamentos":
+                        valuesSocial.Add(info.Value);
+                        namesSocial.Add(info.Key);
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key, "images/mapIcons/14-Salud.png");
+                        break;
+                    case "Ortopedia":
+                        valuesSocial.Add(info.Value);
+                        namesSocial.Add(info.Key);
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key, "images/mapIcons/14-Salud.png");
+                        break;
+                    case "Sangre":
+                        valuesSocial.Add(info.Value);
+                        namesSocial.Add(info.Key);
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key, "images/mapIcons/14-Salud.png");
+                        break;
+                    case "AlimentoBalanceado":
+                        valuesSocial.Add(info.Value);
+                        namesSocial.Add("Alimento balanceado");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Alimento balanceado", "images/mapIcons/15-Mascotas.png");
+                        break;
+                    case "Adopcion":
+                        valuesSocial.Add(info.Value);
+                        namesSocial.Add("Adopción");
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add("Adopción", "images/mapIcons/15-Mascotas.png");
+                        break;
+                    //case "Papeles":
+                    //    valuesAmbiental.Add(info.Value);
+                    //    namesAmbiental.Add(info.Key);
+                    //    if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key,"images/mapIcons/1-PapelYCarton.png");
+                    //    break;
+                    //case "OtrosPlasticos":
+                    //    valuesAmbiental.Add(info.Value);
+                    //    namesAmbiental.Add("Otros Plásticos");
+                    //    break;
+                    //case "DesechosPeligrosos":
+                    //    valuesAmbiental.Add(info.Value);
+                    //    namesAmbiental.Add("Desechos peligrosos");
+                    //    if (topFiveCategories.Count < 5) topFiveCategories.Add("Desechos peligrosos","images/mapIcons/6-DesechosPeligrosos.png");
+                    //    break;
+                    //case "PapelesYCartones":
+                    //    valuesAmbiental.Add(info.Value);
+                    //    namesAmbiental.Add("Papeles y cartones");
+                    //    if (topFiveCategories.Count < 5) topFiveCategories.Add("Papeles y cartones", "images/mapIcons/1-PapelYCarton.png");
+                    //    break;
+                    //case "Vidrios":
+                    //    valuesAmbiental.Add(info.Value);
+                    //    namesAmbiental.Add(info.Key);
+                    //    if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key, "images/mapIcons/2-Vidrio.png");
+                    //    break;
+
+                    //case "OtrosPapelesCartones":
+                    //    valuesAmbiental.Add(info.Value);
+                    //    namesAmbiental.Add("Otros Papeles Y Cartones");
+                    //    break;
+                    //case "Plasticos":
+                    //    valuesAmbiental.Add(info.Value);
+                    //    namesAmbiental.Add("Plásticos");
+                    //    if (topFiveCategories.Count < 5) topFiveCategories.Add("Plásticos", "images/mapIcons/3-Plásticos.png");
+                    //    break;
+                    //case "Metales":
+                    //    valuesAmbiental.Add(info.Value);
+                    //    namesAmbiental.Add(info.Key);
+                    //    if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key, "images/mapIcons/4-Metales.png");
+                    //    break;
+                    //case "OtrosVidrios":
+                    //    valuesAmbiental.Add(info.Value);
+                    //    namesAmbiental.Add("Otros Vidrios");
+                    //    break;
+                    //case "OtrosArticulosParaElHogar":
+                    //    valuesSocial.Add(info.Value);
+                    //    namesSocial.Add("Otros Artículos Para el hogar");
+                    //    break;
+                    //case "OtrosGeneral":
+                    //    valuesSocial.Add(info.Value);
+                    //    namesSocial.Add("Otros General");
+                    //    break;
+                    //case "OtrosDesechosPeligrosos":
+                    //    valuesAmbiental.Add(info.Value);
+                    //    namesAmbiental.Add("Otros Desechos Peligrosos");
+                    //    break;
+                    //case "OtrosArticulosDeMascotas":
+                    //    valuesSocial.Add(info.Value);
+                    //    namesSocial.Add("Otros Artículos De Mascotas");
+                    //    break;
+                    //case "Otros":
+                    //    valuesSocial.Add(info.Value);
+                    //    namesSocial.Add(info.Key);
+                    //    break;
+                    case "Ambiental":
+                        valuesDinero.Add(info.Value);
+                        namesDinero.Add(info.Key);
+                        break;
+                    case "Social":
+                        valuesDinero.Add(info.Value);
+                        namesDinero.Add(info.Key);
+                        break;
+                    case "Dinero":
+                        valuesDinero.Add(info.Value);
+                        namesDinero.Add(info.Key);
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key, "images/mapIcons/17-Dinero.png");
+                        break;
+                    case "Voluntariado":
+                        valuesDinero.Add(info.Value);
+                        namesDinero.Add(info.Key);
+                        if (topFiveCategories.Count < 5) topFiveCategories.Add(info.Key, "images/mapIcons/18-Voluntariado.png");
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+            catch (Exception ec)
+            {
+                System.Console.WriteLine(ec.Message);
+            }
+
+        }
+        dataAmbiental = valuesAmbiental.ToArray();
+        labelsAmbiental = namesAmbiental.ToArray();
+
+        dataSocial = valuesSocial.ToArray();
+        labelsSocial = namesSocial.ToArray();
+
+        dataDinero = valuesDinero.ToArray();
+        labelsDinero = namesDinero.ToArray();
+
+        await InvokeAsync(() => { StateHasChanged(); });
+    }
+
+}

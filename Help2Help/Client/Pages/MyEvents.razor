@@ -1,0 +1,536 @@
+﻿@page "/myevents"
+@inject IEventService EventService
+@inject IUserService UserService
+@inject IDialogService DialogService
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+    }
+</style>
+
+<MudLayout>
+    <CustomNavMenu></CustomNavMenu>
+    <MudMainContent>
+        <!--VISTA MOBILE-->
+        <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+            <MudPaper Class="px-8 pt-4" Elevation="0">
+                <h1 style="font-size: 20px;text-align: center;">
+                    <span style="color: black;">Mis Eventos</span>
+                </h1>
+            </MudPaper>
+        </MudHidden>
+        <!--VISTA WEB-->
+        <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+            <MudPaper Class="px-8 pt-4" Elevation="0">
+                <h1 style="font-size: 48px;text-align: center;">
+                    <span style="color: black;">Mis Eventos</span>
+                </h1>
+            </MudPaper>
+        </MudHidden>
+
+        <MudPaper Class="d-flex justify-center flex-wrap gap-2" MaxWidth="100vw" Elevation="0">
+            @if (EventService.Events == null || EventService.Events?.Count == 0)
+            {
+                <MudStack Row="true" Style="width:100%;">
+                    <MudGrid Class="ml-16" Justify="Justify.FlexStart">
+                        <MudItem>
+                            <MudProgressCircular Color="Color.Surface" Indeterminate="true" />
+                        </MudItem>
+                        <MudItem Style="display: flex; align-items: center;">
+                            <MudText Typo="Typo.subtitle1" Color="Color.Dark">
+                                <b>Cargando Eventos...</b>
+                            </MudText>
+                        </MudItem>
+                    </MudGrid>
+                </MudStack>
+            }
+            else
+            {
+                <!--VISTA MOBILE-->
+                <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                    @foreach (var eventCard in EventService.Events)
+                    {
+                        <MudCard Outlined="true" Elevation="6" Class="mb-1 ma-2 rounded-lg" Style="width:100vw; heigth:auto;">
+                            <MudCardHeader Class="pb-0">
+                                <CardHeaderAvatar>
+                                    @switch (eventCard.SubCategory)
+                                    {
+                                        case "Papeles (Diarios, revistas, impresiones)":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                            break;
+                                        case "Cajas de Cartón":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                            break;
+                                        case "Cartón de uso cotidiano (Cajas de alimentos, tubitos de papel)":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                            break;
+                                        case "Envases tipo brick (lavados)":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                            break;
+                                        case "Otros Papeles y Cartones":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                            break;
+                                        case "Botellas de Vidrio":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/2-Vidrio.png" />
+                                            break;
+                                        case "Tarros y frascos de conservas":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/2-Vidrio.png" />
+                                            break;
+                                        case "Jarras y copas de vidrio":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/2-Vidrio.png" />
+                                            break;
+                                        case "Otros Vidrios":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/2-Vidrio.png" />
+                                            break;
+                                        case "Botellas de Plástico":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                            break;
+                                        case "Tapitas":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                            break;
+                                        case "Bandejas":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                            break;
+                                        case "Bolsas de plástico":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                            break;
+                                        case "Otros Plásticos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                            break;
+                                        case "Aluminio (Latas)":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/4-Metales.png" />
+                                            break;
+                                        case "Cobre":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/4-Metales.png" />
+                                            break;
+                                        case "Hierro":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/4-Metales.png" />
+                                            break;
+                                        case "Otros Metales":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/4-Metales.png" />
+                                            break;
+                                        case "Pilas y baterías":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                            break;
+                                        case "Aceites":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                            break;
+                                        case "Residuos tecnológicos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                            break;
+                                        case "Residuos hospitalarios infecciosos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                            break;
+                                        case "Otros Desechos Peligrosos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                            break;
+                                        case "Residuos orgánicos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/19-Organicos.png" />
+                                            break;
+                                        case "Perecederos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/7-Alimentos.png" />
+                                            break;
+                                        case "No perecederos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/7-Alimentos.png" />
+                                            break;
+                                        case "Leche en polvo":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/7-Alimentos.png" />
+                                            break;
+                                        case "Leche entera":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/7-Alimentos.png" />
+                                            break;
+                                        case "Artículos para Bebés":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/8-Bebés.png" />
+                                            break;
+                                        case "Niños":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/9-Ropa.png" />
+                                            break;
+                                        case "Jóvenes":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/9-Ropa.png" />
+                                            break;
+                                        case "Adultos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/9-Ropa.png" />
+                                            break;
+                                        case "Colchones y frazadas":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                            break;
+                                        case "Higiene y limpieza":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                            break;
+                                        case "Muebles":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                            break;
+                                        case "Electrodomésticos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                            break;
+                                        case "Materiales para construcción":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                            break;
+                                        case "Pintura":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                            break;
+                                        case "Otros artículos para el hogar":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                            break;
+                                        case "Computadoras":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/11-Tecnología.png" />
+                                            break;
+                                        case "Celulares":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/11-Tecnología.png" />
+                                            break;
+                                        case "Otros artículos tecnológicos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/11-Tecnología.png" />
+                                            break;
+                                        case "Juguetes":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/12-Recreación.png" />
+                                            break;
+                                        case "Instrumentos musicales":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/12-Recreación.png" />
+                                            break;
+                                        case "Artículos deportivos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/12-Recreación.png" />
+                                            break;
+                                        case "Otros artículos para recreación":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/12-Recreación.png" />
+                                            break;
+                                        case "Útiles escolares y libros":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/13-UtilesEscolares.png" />
+                                            break;
+                                        case "Medicamentos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/14-Salud.png" />
+                                            break;
+                                        case "Ortopedia":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/14-Salud.png" />
+                                            break;
+                                        case "Sangre":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/14-Salud.png" />
+                                            break;
+                                        case "Otros artículos para salud":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/14-Salud.png" />
+                                            break;
+                                        case "Adopción":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/15-Mascotas.png" />
+                                            break;
+                                        case "Alimento balanceado":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/15-Mascotas.png" />
+                                            break;
+                                        case "Otros artículos de mascotas":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/15-Mascotas.png" />
+                                            break;
+                                        case "Voluntariado":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/18-Voluntariado.png" />
+                                            break;
+                                        case "Dinero":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/17-Dinero.png" />
+                                            break;
+                                        default:
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/16-Otro.png" />
+                                            break;
+                                    }
+                                </CardHeaderAvatar>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6"><b>@eventCard.Title</b></MudText>
+                                </CardHeaderContent>
+                                <CardHeaderActions>
+                                    <MudIconButton Icon="@Icons.Filled.Edit"
+                                           Color="Color.Default"
+                                           OnClick="@((e) => EditEvent(eventCard))"
+                                           aria-label="edit"></MudIconButton>
+                                </CardHeaderActions>
+                            </MudCardHeader>
+                            <MudCardContent Class="pb-0">
+                                <MudText Typo="Typo.body1">@eventCard.Description</MudText>
+
+                                @*<MudDivider DividerType="DividerType.FullWidth" Class="my-6" Style="@($"background:{Colors.Shades.Black};")" />*@
+                                <MudGrid Justify="Justify.FlexStart" Spacing="2">
+                                    <MudItem>
+                                        <MudText Typo="Typo.subtitle2" Style="@($"color:{Colors.Grey.Darken1};")">@eventCard.FatherCategory</MudText>
+                                    </MudItem>
+                                    <MudItem>
+                                        <MudText Typo="Typo.subtitle2" Style="@($"color:{Colors.Grey.Darken1};")">@eventCard.MainCategory</MudText>
+                                    </MudItem>
+                                    <MudItem>
+                                        <MudText Typo="Typo.subtitle2" Style="@($"color:{Colors.Grey.Darken1};")">@eventCard.SubCategory</MudText>
+                                    </MudItem>
+                                </MudGrid>
+                                @{
+                                    var date = string.Concat(eventCard.StartDate.ToShortDateString(), " - ", eventCard.EndDate.ToShortDateString());
+                                }
+                                <MudText Typo="Typo.subtitle2">@date</MudText>
+                                @{
+                                    var st = string.Concat(eventCard.Street, " ", eventCard.StreetNumber, ", ", eventCard.City, ", ", eventCard.Province);
+                                }
+                                <MudText Typo="Typo.subtitle2" Style="@($"color:{Colors.Grey.Darken1};")">@st</MudText>
+                            </MudCardContent>
+                            <MudCardActions Class="mt-n2 pt-n4 mr-0">
+                                @{
+                                    var wppLink = string.Concat("https://wa.me/", @UserService.UserDTO.Phone, "?text=Hola!%20Me%20comunico%20por%20el%20evento%20", @eventCard.Title);
+                                }
+                                <MudIconButton Style="@($"background:#25d366;color:#FFF;")"
+                                       Target="_blank"
+                                       Size="Size.Medium"
+                                       Href="@wppLink"
+                                       Class="ml-auto mr-4"
+                                       Icon="@Icons.Material.Filled.Whatsapp"></MudIconButton>
+                            </MudCardActions>
+                        </MudCard>
+                    }
+                </MudHidden>
+                <!--VISTA WEB-->
+                <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+                    @foreach (var eventCard in EventService.Events)
+                    {
+                        <MudCard Outlined="true" Elevation="6" Class="mb-3 pt-1 rounded-lg" Style="width:25vw; heigth:auto;">
+                            <MudCardHeader Class="pb-0">
+                                <CardHeaderAvatar>
+                                    @switch (eventCard.SubCategory)
+                                    {
+                                        case "Papeles (Diarios, revistas, impresiones)":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                            break;
+                                        case "Cajas de Cartón":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                            break;
+                                        case "Cartón de uso cotidiano (Cajas de alimentos, tubitos de papel)":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                            break;
+                                        case "Envases tipo brick (lavados)":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                            break;
+                                        case "Otros Papeles y Cartones":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/1-PapelYCarton.png" />
+                                            break;
+                                        case "Botellas de Vidrio":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/2-Vidrio.png" />
+                                            break;
+                                        case "Tarros y frascos de conservas":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/2-Vidrio.png" />
+                                            break;
+                                        case "Jarras y copas de vidrio":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/2-Vidrio.png" />
+                                            break;
+                                        case "Otros Vidrios":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/2-Vidrio.png" />
+                                            break;
+                                        case "Botellas de Plástico":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                            break;
+                                        case "Tapitas":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                            break;
+                                        case "Bandejas":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                            break;
+                                        case "Bolsas de plástico":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                            break;
+                                        case "Otros Plásticos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/3-Plásticos.png" />
+                                            break;
+                                        case "Aluminio (Latas)":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/4-Metales.png" />
+                                            break;
+                                        case "Cobre":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/4-Metales.png" />
+                                            break;
+                                        case "Hierro":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/4-Metales.png" />
+                                            break;
+                                        case "Otros Metales":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/4-Metales.png" />
+                                            break;
+                                        case "Pilas y baterías":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                            break;
+                                        case "Aceites":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                            break;
+                                        case "Residuos tecnológicos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                            break;
+                                        case "Residuos hospitalarios infecciosos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                            break;
+                                        case "Otros Desechos Peligrosos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/6-DesechosPeligrosos.png" />
+                                            break;
+                                        case "Residuos orgánicos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/19-Organicos.png" />
+                                            break;
+                                        case "Perecederos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/7-Alimentos.png" />
+                                            break;
+                                        case "No perecederos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/7-Alimentos.png" />
+                                            break;
+                                        case "Leche en polvo":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/7-Alimentos.png" />
+                                            break;
+                                        case "Leche entera":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/7-Alimentos.png" />
+                                            break;
+                                        case "Artículos para Bebés":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/8-Bebés.png" />
+                                            break;
+                                        case "Niños":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/9-Ropa.png" />
+                                            break;
+                                        case "Jóvenes":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/9-Ropa.png" />
+                                            break;
+                                        case "Adultos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/9-Ropa.png" />
+                                            break;
+                                        case "Colchones y frazadas":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                            break;
+                                        case "Higiene y limpieza":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                            break;
+                                        case "Muebles":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                            break;
+                                        case "Electrodomésticos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                            break;
+                                        case "Materiales para construcción":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                            break;
+                                        case "Pintura":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                            break;
+                                        case "Otros artículos para el hogar":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/10-Hogar.png" />
+                                            break;
+                                        case "Computadoras":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/11-Tecnología.png" />
+                                            break;
+                                        case "Celulares":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/11-Tecnología.png" />
+                                            break;
+                                        case "Otros artículos tecnológicos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/11-Tecnología.png" />
+                                            break;
+                                        case "Juguetes":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/12-Recreación.png" />
+                                            break;
+                                        case "Instrumentos musicales":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/12-Recreación.png" />
+                                            break;
+                                        case "Artículos deportivos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/12-Recreación.png" />
+                                            break;
+                                        case "Otros artículos para recreación":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/12-Recreación.png" />
+                                            break;
+                                        case "Útiles escolares y libros":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/13-UtilesEscolares.png" />
+                                            break;
+                                        case "Medicamentos":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/14-Salud.png" />
+                                            break;
+                                        case "Ortopedia":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/14-Salud.png" />
+                                            break;
+                                        case "Sangre":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/14-Salud.png" />
+                                            break;
+                                        case "Otros artículos para salud":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/14-Salud.png" />
+                                            break;
+                                        case "Adopción":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/15-Mascotas.png" />
+                                            break;
+                                        case "Alimento balanceado":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/15-Mascotas.png" />
+                                            break;
+                                        case "Otros artículos de mascotas":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/15-Mascotas.png" />
+                                            break;
+                                        case "Voluntariado":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/18-Voluntariado.png" />
+                                            break;
+                                        case "Dinero":
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/17-Dinero.png" />
+                                            break;
+                                        default:
+                                            <MudAvatar Size="Size.Medium" Style="@($"background:{Colors.Shades.White};")" Image="images/mapIcons/16-Otro.png" />
+                                            break;
+                                    }
+                                </CardHeaderAvatar>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6"><b>@eventCard.Title</b></MudText>
+                                </CardHeaderContent>
+                                <CardHeaderActions>
+                                    <MudIconButton Icon="@Icons.Filled.Edit"
+                                           Color="Color.Default"
+                                           OnClick="@((e) => EditEvent(eventCard))"
+                                           aria-label="edit"></MudIconButton>
+                                </CardHeaderActions>
+                            </MudCardHeader>
+                            <MudCardContent Class="pb-0">
+                                <MudText Typo="Typo.body1">@eventCard.Description</MudText>
+
+                                @*<MudDivider DividerType="DividerType.FullWidth" Class="my-6" Style="@($"background:{Colors.Shades.Black};")" />*@
+                                <MudGrid Justify="Justify.FlexStart" Spacing="2">
+                                    <MudItem>
+                                        <MudText Typo="Typo.subtitle2" Style="@($"color:{Colors.Grey.Darken1};")">@eventCard.FatherCategory</MudText>
+                                    </MudItem>
+                                    <MudItem>
+                                        <MudText Typo="Typo.subtitle2" Style="@($"color:{Colors.Grey.Darken1};")">@eventCard.MainCategory</MudText>
+                                    </MudItem>
+                                    <MudItem>
+                                        <MudText Typo="Typo.subtitle2" Style="@($"color:{Colors.Grey.Darken1};")">@eventCard.SubCategory</MudText>
+                                    </MudItem>
+                                </MudGrid>
+                                @{
+                                    var date = string.Concat(eventCard.StartDate.ToShortDateString(), " - ", eventCard.EndDate.ToShortDateString());
+                                }
+                                <MudText Typo="Typo.subtitle2">@date</MudText>
+                                @{
+                                    var st = string.Concat(eventCard.Street, " ", eventCard.StreetNumber, ", ", eventCard.City, ", ", eventCard.Province);
+                                }
+                                <MudText Typo="Typo.subtitle2" Style="@($"color:{Colors.Grey.Darken1};")">@st</MudText>
+                            </MudCardContent>
+                            <MudCardActions Class="mt-n2 pt-n4 mr-0">
+                                @{
+                                    var wppLink = string.Concat("https://wa.me/", @UserService.UserDTO.Phone, "?text=Hola!%20Me%20comunico%20por%20el%20evento%20", @eventCard.Title);
+                                }
+                                <MudIconButton Style="@($"background:#25d366;color:#FFF;")"
+                                       Target="_blank"
+                                       Size="Size.Medium"
+                                       Href="@wppLink"
+                                       Class="ml-auto mr-4"
+                                       Icon="@Icons.Material.Filled.Whatsapp"></MudIconButton>
+                            </MudCardActions>
+                        </MudCard>
+                    }
+                </MudHidden>
+
+            }
+        </MudPaper>
+    </MudMainContent>
+</MudLayout>
+@code {
+
+    UserResponseDTO user = new UserResponseDTO();
+    private List<EventResponseDTO> events = new List<EventResponseDTO>();
+    protected override async Task OnInitializedAsync()
+    {
+        await UserService.GetCurrentUserInfo();
+        await EventService.GetEventByUserId(UserService.UserDTO.Id);
+        EventService.EventsChanged += StateHasChanged;
+    }
+
+    async Task EditEvent(EventResponseDTO eventToEdit)
+    {
+        var parameters = new DialogParameters { ["eventToEdit"] = eventToEdit };
+
+        var dialog = DialogService.Show<EditEventInfoDialog>("Edit Event", parameters);
+        var result = await dialog.Result;
+
+        await InvokeAsync(() => { StateHasChanged(); });
+    }
+}
