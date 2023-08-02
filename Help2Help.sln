@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Help2Help.Server", "Help2Help\Server\Help2Help.Server.csproj", "{8CF774BB-1A8D-497D-94DD-96173608F9E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Help2Help.Server", "Help2help\Server\Help2Help.Server.csproj", "{8CF774BB-1A8D-497D-94DD-96173608F9E1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Help2Help.Client", "Help2Help\Client\Help2Help.Client.csproj", "{9CCC19DB-54EF-4952-A2B7-B7FC921D35C7}"
 EndProject
