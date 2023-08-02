@@ -1,35 +1,39 @@
-name: Deploy Blazor WASM to GitHub Pages
-
-on:
-    push:
-        branches: [master]
-
+name: Build and Deploy
+on: [push]
+permissions:
+  contents: write
 jobs:
-    deploy-to-github-pages:
-        runs-on: windows-latest
-        steps:
-            - uses: actions/checkout@v2
+  build:
+    runs-on: windows-latest # The first job utilizes windows-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
 
-            - name: Setup .NET Core SDK
-              uses: actions/setup-dotnet@v1
-              with:
-                  dotnet-version: 6.x
-                  include-prerelease: true
+      - name: Install and Build 🔧 # This example project is built using npm and outputs the result to the 'build' folder. Replace with the commands required to build your project, or remove this step entirely if your site is pre-built.
+        run: |
+          npm ci
+          npm run build
 
-            - name: Publish .NET Core Project
-              run: dotnet publish help2help/server/help2help.server.csproj -c Release -o release --nologo
+      - name: Upload Artifacts 🔺 # The project is then uploaded as an artifact named 'site'.
+        uses: actions/upload-artifact@v1
+        with:
+          name: site
+          path: build
 
-            - name: copy index.html to 404.html
-              run: cp release/wwwroot/index.html release/wwwroot/404.html
+  deploy:
+    concurrency: ci-${{ github.ref }}
+    needs: [build] # The second job must depend on the first one to complete before running and uses ubuntu-latest instead of windows.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
 
-            - name: Add .nojekyll file
-              run: touch release/wwwroot/.nojekyll
-            - name: Install rsync 📚
-              run: |
-                apt-get update && apt-get install -y rsync
-            - name: Commit wwwroot to GitHub Pages
-              uses: JamesIves/github-pages-deploy-action@3.7.1
-              with:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  BRANCH: master
-                  FOLDER: release/wwwroot
+      - name: Download Artifacts 🔻 # The built project is downloaded into the 'site' folder.
+        uses: actions/download-artifact@v1
+        with:
+          name: site
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: 'site'
