@@ -24,7 +24,9 @@ jobs:
 
             - name: Add .nojekyll file
               run: touch release/wwwroot/.nojekyll
-
+            - name: Install rsync 📚
+              run: |
+                apt-get update && apt-get install -y rsync
             - name: Commit wwwroot to GitHub Pages
               uses: JamesIves/github-pages-deploy-action@3.7.1
               with:
